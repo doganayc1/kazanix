@@ -45,6 +45,15 @@ export default function AdminPage() {
 
   return (
     <main className="min-h-screen bg-zinc-950 px-6 py-10 text-white">
+
+      <div className="mx-auto max-w-7xl px-6 pt-8">
+        <a
+          href="/admin/advertisements"
+          className="inline-flex rounded-xl bg-yellow-400 px-5 py-3 font-bold text-black"
+        >
+          Reklam Başvuruları
+        </a>
+      </div>
       <div className="mx-auto max-w-7xl">
         <div className="mb-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
@@ -165,3 +174,4 @@ export default function AdminPage() {
     </main>
   );
 }
+
