@@ -1,189 +1,166 @@
-import { prisma } from "@/lib/prisma";
-import { cookies } from "next/headers";
+﻿"use client";
+
 import Link from "next/link";
-import { redirect } from "next/navigation";
+import { useEffect, useState } from "react";
 
-async function getAdmin() {
-  const cookieStore = await cookies();
-  const userId = cookieStore.get("userId")?.value;
+type Campaign = {
+  id: string;
+  title: string;
+  description?: string | null;
+  category?: {
+    name: string;
+  } | null;
+  business?: {
+    companyName: string;
+  } | null;
+  comments?: unknown[];
+};
 
-  if (!userId) {
-    return null;
-  }
+export default function AdminPage() {
+  const [campaigns, setCampaigns] = useState<Campaign[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  const user = await prisma.user.findUnique({
-    where: {
-      id: userId,
-    },
-  });
+  useEffect(() => {
+    async function loadCampaigns() {
+      try {
+        const res = await fetch("/api/campaigns");
 
-  if (!user || user.role !== "ADMIN") {
-    return null;
-  }
+        if (!res.ok) {
+          throw new Error("Kampanyalar alÄ±namadÄ±.");
+        }
 
-  return user;
-}
+        const data = await res.json();
+        setCampaigns(Array.isArray(data) ? data : []);
+      } catch (err) {
+        console.error(err);
+        setError("Kampanyalar yÃ¼klenirken bir hata oluÅŸtu.");
+      } finally {
+        setLoading(false);
+      }
+    }
 
-async function getStats() {
-  const [users, businesses, campaigns, comments, favorites] =
-    await Promise.all([
-      prisma.user.count(),
-      prisma.businessProfile.count(),
-      prisma.campaign.count(),
-      prisma.comment.count(),
-      prisma.favorite.count(),
-    ]);
-
-  return {
-    users,
-    businesses,
-    campaigns,
-    comments,
-    favorites,
-  };
-}
-
-export default async function AdminPage() {
-  const admin = await getAdmin();
-
-  if (!admin) {
-    redirect("/login");
-  }
-
-  const stats = await getStats();
+    loadCampaigns();
+  }, []);
 
   return (
-    <main className="min-h-screen bg-zinc-950 text-white">
-      <div className="max-w-7xl mx-auto px-6 py-10">
-
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-
+    <main className="min-h-screen bg-zinc-950 px-6 py-10 text-white">
+      <div className="mx-auto max-w-7xl">
+        <div className="mb-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="text-yellow-400 font-bold">
-              KAZANIX YÖNETİCİ PANELİ
-            </p>
-
-            <h1 className="text-4xl font-extrabold mt-2">
-              Hoş geldin, {admin.name}
+            <h1 className="text-4xl font-extrabold text-yellow-400">
+              KAZANIX Admin
             </h1>
-
-            <p className="text-zinc-400 mt-2">
-              Platformu buradan yönetebilirsin.
+            <p className="mt-2 text-gray-400">
+              KampanyalarÄ± yÃ¶net ve platformu kontrol et.
             </p>
           </div>
 
           <Link
             href="/"
-            className="bg-zinc-900 border border-zinc-800 rounded-xl px-5 py-3 font-bold hover:border-yellow-500 transition"
+            className="rounded-xl border border-zinc-700 px-5 py-3 text-center font-semibold text-gray-300 transition hover:border-yellow-500 hover:text-yellow-400"
           >
-            Siteye Git
+            Siteye DÃ¶n
           </Link>
-
         </div>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-5 mt-10">
-
-          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6">
-            <p className="text-zinc-400">Kullanıcılar</p>
-            <p className="text-4xl font-extrabold mt-3 text-yellow-400">
-              {stats.users}
+        <div className="mb-8 grid gap-4 sm:grid-cols-3">
+          <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-6">
+            <p className="text-sm text-gray-500">Toplam Kampanya</p>
+            <p className="mt-2 text-3xl font-bold text-yellow-400">
+              {campaigns.length}
             </p>
           </div>
 
-          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6">
-            <p className="text-zinc-400">İşletmeler</p>
-            <p className="text-4xl font-extrabold mt-3 text-yellow-400">
-              {stats.businesses}
+          <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-6">
+            <p className="text-sm text-gray-500">Durum</p>
+            <p className="mt-2 text-xl font-bold text-green-400">
+              Sistem Aktif
             </p>
           </div>
 
-          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6">
-            <p className="text-zinc-400">Kampanyalar</p>
-            <p className="text-4xl font-extrabold mt-3 text-yellow-400">
-              {stats.campaigns}
-            </p>
+          <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-6">
+            <p className="text-sm text-gray-500">YÃ¶netim</p>
+            <p className="mt-2 text-xl font-bold">Kampanyalar</p>
           </div>
-
-          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6">
-            <p className="text-zinc-400">Yorumlar</p>
-            <p className="text-4xl font-extrabold mt-3 text-yellow-400">
-              {stats.comments}
-            </p>
-          </div>
-
-          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6">
-            <p className="text-zinc-400">Favoriler</p>
-            <p className="text-4xl font-extrabold mt-3 text-yellow-400">
-              {stats.favorites}
-            </p>
-          </div>
-
         </div>
 
-        <section className="mt-10">
+        <div className="mb-6 flex items-center justify-between">
+          <h2 className="text-2xl font-bold">Kampanyalar</h2>
 
-          <h2 className="text-2xl font-bold">
-            Yönetim
-          </h2>
+          <Link
+            href="/campaigns"
+            className="rounded-xl bg-yellow-500 px-5 py-3 font-bold text-black transition hover:bg-yellow-400"
+          >
+            TÃ¼mÃ¼nÃ¼ GÃ¶r
+          </Link>
+        </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-5 mt-5">
-
-            <Link
-              href="/admin/campaigns"
-              className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 hover:border-yellow-500 transition"
-            >
-              <h3 className="text-xl font-bold">
-                Kampanyalar
-              </h3>
-
-              <p className="text-zinc-400 mt-2">
-                Kampanyaları yönet.
-              </p>
-            </Link>
-
-            <Link
-              href="/admin/businesses"
-              className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 hover:border-yellow-500 transition"
-            >
-              <h3 className="text-xl font-bold">
-                İşletmeler
-              </h3>
-
-              <p className="text-zinc-400 mt-2">
-                İşletmeleri yönet.
-              </p>
-            </Link>
-
-            <Link
-              href="/admin/users"
-              className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 hover:border-yellow-500 transition"
-            >
-              <h3 className="text-xl font-bold">
-                Kullanıcılar
-              </h3>
-
-              <p className="text-zinc-400 mt-2">
-                Kullanıcıları yönet.
-              </p>
-            </Link>
-
-            <Link
-              href="/admin/comments"
-              className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 hover:border-yellow-500 transition"
-            >
-              <h3 className="text-xl font-bold">
-                Yorumlar
-              </h3>
-
-              <p className="text-zinc-400 mt-2">
-                Yorumları yönet.
-              </p>
-            </Link>
-
+        {loading && (
+          <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-10 text-center text-gray-400">
+            Kampanyalar yÃ¼kleniyor...
           </div>
+        )}
 
-        </section>
+        {error && (
+          <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-10 text-center text-red-400">
+            {error}
+          </div>
+        )}
 
+        {!loading && !error && campaigns.length === 0 && (
+          <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-10 text-center">
+            <h2 className="text-xl font-bold">
+              HenÃ¼z kampanya bulunmuyor
+            </h2>
+
+            <p className="mt-2 text-gray-400">
+              Kampanyalar eklendiÄŸinde burada gÃ¶rÃ¼necek.
+            </p>
+          </div>
+        )}
+
+        {!loading && !error && campaigns.length > 0 && (
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {campaigns.map((campaign) => (
+              <div
+                key={campaign.id}
+                className="rounded-2xl border border-zinc-800 bg-zinc-900 p-6 transition hover:border-yellow-500/50"
+              >
+                <span className="inline-block rounded-full bg-yellow-500/10 px-3 py-1 text-xs font-semibold text-yellow-400">
+                  {campaign.category?.name ?? "Genel"}
+                </span>
+
+                <h3 className="mt-4 text-xl font-bold">
+                  {campaign.title}
+                </h3>
+
+                {campaign.description && (
+                  <p className="mt-3 line-clamp-3 text-sm leading-6 text-gray-400">
+                    {campaign.description}
+                  </p>
+                )}
+
+                <div className="mt-5 border-t border-zinc-800 pt-4">
+                  <p className="text-sm text-gray-500">
+                    {campaign.business?.companyName ?? "Ä°ÅŸletme"}
+                  </p>
+
+                  <p className="mt-2 text-sm text-gray-500">
+                    {campaign.comments?.length ?? 0} yorum
+                  </p>
+                </div>
+
+                <Link
+                  href={"/campaign/" + campaign.id}
+                  className="mt-6 block rounded-xl bg-yellow-500 py-3 text-center font-bold text-black transition hover:bg-yellow-400"
+                >
+                  KampanyayÄ± Ä°ncele
+                </Link>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </main>
   );

@@ -1,7 +1,8 @@
-import { prisma } from "@/lib/prisma";
+﻿import { prisma } from "@/lib/prisma";
 import { cookies } from "next/headers";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import DeleteCampaignButton from "./DeleteCampaignButton";
 
 async function getAdmin() {
   const cookieStore = await cookies();
@@ -44,130 +45,117 @@ export default async function AdminCampaignsPage() {
   });
 
   return (
-    <main className="min-h-screen bg-zinc-950 text-white">
-      <div className="max-w-7xl mx-auto px-6 py-10">
-
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-
-          <div>
-            <Link
-              href="/admin"
-              className="text-yellow-400 font-bold"
-            >
-              ← Yönetici Paneli
-            </Link>
-
-            <h1 className="text-4xl font-extrabold mt-4">
-              Kampanyalar
-            </h1>
-
-            <p className="text-zinc-400 mt-2">
-              Platformdaki tüm kampanyaları yönet.
-            </p>
-          </div>
-
+    <div className="space-y-6">
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div>
           <Link
-            href="/admin/campaigns/create"
-            className="bg-yellow-500 text-black px-6 py-3 rounded-xl font-bold hover:bg-yellow-400 transition"
+            href="/admin"
+            className="text-sm font-medium text-yellow-500 hover:text-yellow-400"
           >
-            + Yeni Kampanya
+            ← Dashboard
           </Link>
 
+          <h1 className="mt-2 text-2xl font-bold text-gray-900 dark:text-white">
+            Kampanyalar
+          </h1>
+
+          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+            Kampanyaları buradan yönetebilirsiniz.
+          </p>
         </div>
 
-        <div className="mt-10 bg-zinc-900 border border-zinc-800 rounded-3xl overflow-hidden">
+        <div className="rounded-lg bg-yellow-500 px-4 py-2 text-sm font-bold text-black">
+          {campaigns.length} Kampanya
+        </div>
+      </div>
 
+      <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900">
+        {campaigns.length === 0 ? (
+          <div className="p-10 text-center">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+              Henüz kampanya yok
+            </h2>
+
+            <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+              Veritabanında henüz kayıtlı kampanya bulunmuyor.
+            </p>
+          </div>
+        ) : (
           <div className="overflow-x-auto">
-
-            <table className="w-full">
-
-              <thead className="bg-zinc-800">
+            <table className="w-full text-left">
+              <thead className="border-b border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-800/50">
                 <tr>
-                  <th className="text-left p-4">Kampanya</th>
-                  <th className="text-left p-4">İşletme</th>
-                  <th className="text-left p-4">Kategori</th>
-                  <th className="text-center p-4">Favori</th>
-                  <th className="text-center p-4">Yorum</th>
-                  <th className="text-right p-4">İşlem</th>
+                  <th className="px-6 py-4 text-sm font-semibold text-gray-700 dark:text-gray-300">
+                    Kampanya
+                  </th>
+
+                  <th className="px-6 py-4 text-sm font-semibold text-gray-700 dark:text-gray-300">
+                    İşletme
+                  </th>
+
+                  <th className="px-6 py-4 text-sm font-semibold text-gray-700 dark:text-gray-300">
+                    Kategori
+                  </th>
+
+                  <th className="px-6 py-4 text-sm font-semibold text-gray-700 dark:text-gray-300">
+                    Favori
+                  </th>
+
+                  <th className="px-6 py-4 text-sm font-semibold text-gray-700 dark:text-gray-300">
+                    Yorum
+                  </th>
+
+                  <th className="px-6 py-4 text-right text-sm font-semibold text-gray-700 dark:text-gray-300">
+                    İşlem
+                  </th>
                 </tr>
               </thead>
 
-              <tbody>
-
+              <tbody className="divide-y divide-gray-200 dark:divide-gray-800">
                 {campaigns.map((campaign) => (
                   <tr
                     key={campaign.id}
-                    className="border-t border-zinc-800 hover:bg-zinc-800/50 transition"
+                    className="hover:bg-gray-50 dark:hover:bg-gray-800/40"
                   >
-
-                    <td className="p-4">
-                      <div className="font-bold">
+                    <td className="px-6 py-4">
+                      <div className="font-semibold text-gray-900 dark:text-white">
                         {campaign.title}
                       </div>
 
-                      <div className="text-sm text-zinc-500 mt-1 max-w-xs truncate">
-                        {campaign.description}
-                      </div>
+                      {campaign.description && (
+                        <div className="mt-1 max-w-md truncate text-sm text-gray-500 dark:text-gray-400">
+                          {campaign.description}
+                        </div>
+                      )}
                     </td>
 
-                    <td className="p-4">
-                      <div className="font-semibold">
-                        {campaign.business.companyName}
-                      </div>
+                    <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">
+                      {campaign.business?.companyName ?? "-"}
                     </td>
 
-                    <td className="p-4">
-                      <span className="bg-zinc-800 px-3 py-1 rounded-full text-sm">
-                        {campaign.category.name}
-                      </span>
+                    <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">
+                      {campaign.category?.name ?? "-"}
                     </td>
 
-                    <td className="p-4 text-center text-yellow-400 font-bold">
-                      {campaign.favorites.length}
+                    <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">
+                      {campaign.favorites?.length ?? 0}
                     </td>
 
-                    <td className="p-4 text-center text-yellow-400 font-bold">
-                      {campaign.comments.length}
+                    <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">
+                      {campaign.comments?.length ?? 0}
                     </td>
 
-                    <td className="p-4 text-right">
-                      <div className="flex justify-end gap-2">
-
-                        <Link
-                          href={`/campaign/${campaign.id}`}
-                          className="px-3 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700"
-                        >
-                          Gör
-                        </Link>
-
-                        <Link
-                          href={`/admin/campaigns/${campaign.id}/edit`}
-                          className="px-3 py-2 rounded-lg bg-yellow-500 text-black font-bold hover:bg-yellow-400"
-                        >
-                          Düzenle
-                        </Link>
-
-                      </div>
+                    <td className="px-6 py-4 text-right">
+                      <DeleteCampaignButton campaignId={campaign.id} />
                     </td>
-
                   </tr>
                 ))}
-
               </tbody>
-
             </table>
-
           </div>
-
-          {campaigns.length === 0 && (
-            <div className="p-10 text-center text-zinc-400">
-              Henüz kampanya bulunmuyor.
-            </div>
-          )}
-
-        </div>
-
+        )}
       </div>
-    </main>
+    </div>
   );
 }
+
