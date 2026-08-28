@@ -238,7 +238,7 @@ export default function Home() {
 
           <a
             className="primary-btn"
-            href="mailto:iletisim@kazanix.com"
+            href="/reklam-ver"
           >
             Bizimle Iletisime Gec
             <span>→</span>
@@ -270,3 +270,4 @@ export default function Home() {
     </main>
   );
 }
+
