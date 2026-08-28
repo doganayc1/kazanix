@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useState } from "react";
+import { useState } from "react";`r`nimport Advertisements from "./advertisements";
 
 const categories = [
   "E-Ticaret",
@@ -204,25 +204,7 @@ export default function Home() {
             </button>
           </div>
 
-          <div className="ad-grid">
-            {categories.map((category, index) => (
-              <article className="ad-card" key={category}>
-                <div className={`ad-visual visual-${index + 1}`}>
-                  <span>{category}</span>
-                </div>
-                <div className="ad-content">
-                  <div className="ad-meta">
-                    <span>SPONSORLU</span>
-                    <small>{category}</small>
-                  </div>
-                  <h3>
-                    Dijital dunyada markanizi bir sonraki seviyeye tasiyin.
-                  </h3>
-                  <button>Detaylari Gor →</button>
-                </div>
-              </article>
-            ))}
-          </div>
+          <Advertisements />
         </div>
       </section>
 
@@ -270,4 +252,5 @@ export default function Home() {
     </main>
   );
 }
+
 

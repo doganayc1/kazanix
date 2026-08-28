@@ -961,3 +961,154 @@ footer {
     grid-template-columns: 1fr;
   }
 }
+
+/* DATABASE REKLAMLARI */
+.database-ad-visual {
+  background-size: cover;
+  background-position: center;
+}
+
+.ad-description {
+  color: var(--muted);
+  line-height: 1.6;
+  font-size: 14px;
+}
+
+.ad-link {
+  display: inline-block;
+  margin-top: 12px;
+  color: #c4b5fd;
+  font-weight: 700;
+}
+
+.ads-loading {
+  padding: 35px;
+  color: var(--muted);
+  text-align: center;
+}
+
+/* ADMIN */
+.admin-page {
+  min-height: 100vh;
+  padding: 80px 0;
+}
+
+.admin-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 30px;
+  align-items: flex-start;
+  margin-bottom: 45px;
+}
+
+.admin-top span {
+  color: #b99cff;
+  font-size: 11px;
+  letter-spacing: 2px;
+  font-weight: 800;
+}
+
+.admin-top h1 {
+  font-size: clamp(36px, 6vw, 60px);
+  margin: 15px 0;
+}
+
+.admin-top p {
+  color: var(--muted);
+}
+
+.admin-list {
+  display: grid;
+  gap: 18px;
+}
+
+.admin-ad-card {
+  display: flex;
+  justify-content: space-between;
+  gap: 30px;
+  padding: 28px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: var(--surface);
+}
+
+.admin-ad-info {
+  flex: 1;
+}
+
+.admin-ad-info h2 {
+  margin: 15px 0 8px;
+}
+
+.admin-ad-info strong {
+  color: #c4b5fd;
+}
+
+.admin-ad-info p {
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.admin-ad-info small {
+  color: #777481;
+}
+
+.status {
+  display: inline-block;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+.status-PENDING {
+  background: rgba(234,179,8,.15);
+  color: #fde047;
+}
+
+.status-APPROVED {
+  background: rgba(34,197,94,.15);
+  color: #86efac;
+}
+
+.status-REJECTED {
+  background: rgba(239,68,68,.15);
+  color: #fca5a5;
+}
+
+.admin-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 120px;
+}
+
+.admin-actions button {
+  border-radius: 10px;
+  padding: 11px 15px;
+  font-weight: 700;
+}
+
+.approve-btn {
+  border: 0;
+  background: #22c55e;
+  color: #07120a;
+}
+
+.reject-btn {
+  border: 0;
+  background: #ef4444;
+  color: white;
+}
+
+@media (max-width: 700px) {
+  .admin-top,
+  .admin-ad-card {
+    flex-direction: column;
+  }
+
+  .admin-actions {
+    width: 100%;
+  }
+}

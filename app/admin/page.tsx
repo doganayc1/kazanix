@@ -1,7 +1,6 @@
 ﻿"use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 
 type Advertisement = {
   id: string;
@@ -9,44 +8,28 @@ type Advertisement = {
   email: string;
   title: string;
   description: string;
-  image: string | null;
-  link: string | null;
-  package: string;
   status: string;
-  createdAt: string;
+  package: string;
 };
 
 export default function AdminPage() {
-  const [advertisements, setAdvertisements] =
-    useState<Advertisement[]>([]);
-
-  const [loading, setLoading] = useState(true);
+  const [password, setPassword] = useState("");
+  const [authenticated, setAuthenticated] = useState(false);
+  const [advertisements, setAdvertisements] = useState<Advertisement[]>([]);
   const [message, setMessage] = useState("");
 
   const loadAdvertisements = async () => {
-    try {
-      setLoading(true);
+    const response = await fetch("/api/admin/advertisements");
 
-      const response = await fetch(
-        "/api/admin/advertisements"
-      );
+    if (response.status === 401) {
+      setAuthenticated(false);
+      return;
+    }
 
+    if (response.ok) {
       const data = await response.json();
-
-      if (!response.ok) {
-        setMessage(
-          data.error || "Reklamlar yüklenemedi."
-        );
-        return;
-      }
-
       setAdvertisements(data);
-    } catch {
-      setMessage(
-        "Reklamlar yüklenirken bağlantı hatası oluştu."
-      );
-    } finally {
-      setLoading(false);
+      setAuthenticated(true);
     }
   };
 
@@ -54,198 +37,156 @@ export default function AdminPage() {
     loadAdvertisements();
   }, []);
 
-  const updateStatus = async (
-    id: string,
-    status: string
-  ) => {
-    try {
-      const response = await fetch(
-        "/api/admin/advertisements",
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            id,
-            status,
-          }),
-        }
-      );
+  const login = async (event: React.FormEvent) => {
+    event.preventDefault();
 
-      const data = await response.json();
+    const response = await fetch("/api/admin/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ password }),
+    });
 
-      if (!response.ok) {
-        setMessage(
-          data.error || "Reklam güncellenemedi."
-        );
-        return;
-      }
+    const data = await response.json();
 
-      setMessage("Reklam başarıyla güncellendi.");
-
-      loadAdvertisements();
-    } catch {
-      setMessage(
-        "Reklam güncellenirken hata oluştu."
-      );
-    }
-  };
-
-  const deleteAdvertisement = async (
-    id: string
-  ) => {
-    const confirmed = window.confirm(
-      "Bu reklamı silmek istediğinizden emin misiniz?"
-    );
-
-    if (!confirmed) {
+    if (!response.ok) {
+      setMessage(data.error || "Giris basarisiz.");
       return;
     }
 
-    try {
-      const response = await fetch(
-        "/api/admin/advertisements",
-        {
-          method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            id,
-          }),
-        }
-      );
+    setPassword("");
+    setMessage("");
+    setAuthenticated(true);
+    loadAdvertisements();
+  };
 
-      const data = await response.json();
+  const updateStatus = async (
+    id: string,
+    status: "APPROVED" | "REJECTED" | "PENDING"
+  ) => {
+    const response = await fetch("/api/admin/advertisements", {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        id,
+        status,
+      }),
+    });
 
-      if (!response.ok) {
-        setMessage(
-          data.error || "Reklam silinemedi."
-        );
-        return;
-      }
-
-      setMessage("Reklam silindi.");
-
+    if (response.ok) {
       loadAdvertisements();
-    } catch {
-      setMessage(
-        "Reklam silinirken hata oluştu."
-      );
     }
   };
+
+  const logout = async () => {
+    await fetch("/api/admin/logout", {
+      method: "POST",
+    });
+
+    setAuthenticated(false);
+    setAdvertisements([]);
+  };
+
+  if (!authenticated) {
+    return (
+      <main className="form-page">
+        <div className="container admin-login">
+          <a href="/" className="back-link">
+            ← Ana Sayfaya Don
+          </a>
+
+          <div className="form-header">
+            <span>ADMIN GIRISI</span>
+            <h1>Kazanix Yonetim Paneli</h1>
+            <p>Reklam basvurularini yonetmek icin giris yapin.</p>
+          </div>
+
+          <form
+            className="advertisement-form"
+            onSubmit={login}
+          >
+            <label>
+              Admin Sifresi
+              <input
+                type="password"
+                value={password}
+                onChange={(event) =>
+                  setPassword(event.target.value)
+                }
+                required
+              />
+            </label>
+
+            <button
+              type="submit"
+              className="primary-btn"
+            >
+              Giris Yap
+            </button>
+
+            {message && (
+              <p className="form-message">
+                {message}
+              </p>
+            )}
+          </form>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="admin-page">
       <div className="container">
-
         <div className="admin-top">
           <div>
-            <span className="admin-label">
-              KAZANIX YÖNETİM PANELİ
-            </span>
-
-            <h1>Reklam Yönetimi</h1>
-
-            <p>
-              Gelen reklam taleplerini kontrol edin,
-              onaylayın veya reddedin.
-            </p>
+            <span>ADMIN PANELI</span>
+            <h1>Reklam Yonetimi</h1>
+            <p>Gelen reklam taleplerini onaylayin veya reddedin.</p>
           </div>
 
-          <Link
-            href="/"
+          <button
             className="secondary-btn"
+            onClick={logout}
           >
-            Siteye Dön
-          </Link>
+            Cikis Yap
+          </button>
         </div>
 
-        {message && (
-          <div className="admin-message">
-            {message}
-          </div>
-        )}
-
-        {loading && (
-          <p className="admin-loading">
-            Reklamlar yükleniyor...
-          </p>
-        )}
-
-        {!loading &&
-          advertisements.length === 0 && (
-            <div className="admin-empty">
-              <h2>Henüz reklam talebi yok.</h2>
-
-              <p>
-                Reklam verenlerin gönderdiği
-                talepler burada görünecek.
-              </p>
-            </div>
+        <div className="admin-list">
+          {advertisements.length === 0 && (
+            <p className="ads-loading">
+              Henuz reklam basvurusu yok.
+            </p>
           )}
 
-        <div className="admin-grid">
           {advertisements.map((ad) => (
             <article
-              className="admin-card"
+              className="admin-ad-card"
               key={ad.id}
             >
-              <div className="admin-card-header">
-                <div>
-                  <span className="admin-status">
-                    {ad.status}
-                  </span>
+              <div className="admin-ad-info">
+                <span className={`status status-${ad.status}`}>
+                  {ad.status}
+                </span>
 
-                  <h2>{ad.title}</h2>
-                </div>
+                <h2>{ad.title}</h2>
 
                 <strong>{ad.company}</strong>
-              </div>
 
-              <p className="admin-description">
-                {ad.description}
-              </p>
+                <p>{ad.description}</p>
 
-              <div className="admin-info">
-                <div>
-                  <span>Firma</span>
-                  <strong>{ad.company}</strong>
-                </div>
-
-                <div>
-                  <span>E-posta</span>
-                  <strong>{ad.email}</strong>
-                </div>
-
-                <div>
-                  <span>Paket</span>
-                  <strong>{ad.package}</strong>
-                </div>
-
-                {ad.link && (
-                  <div>
-                    <span>Web Sitesi</span>
-                    <a
-                      href={ad.link}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      Siteyi Aç
-                    </a>
-                  </div>
-                )}
+                <small>{ad.email}</small>
               </div>
 
               <div className="admin-actions">
                 <button
                   className="approve-btn"
                   onClick={() =>
-                    updateStatus(
-                      ad.id,
-                      "APPROVED"
-                    )
+                    updateStatus(ad.id, "APPROVED")
                   }
                 >
                   Onayla
@@ -254,22 +195,19 @@ export default function AdminPage() {
                 <button
                   className="reject-btn"
                   onClick={() =>
-                    updateStatus(
-                      ad.id,
-                      "REJECTED"
-                    )
+                    updateStatus(ad.id, "REJECTED")
                   }
                 >
                   Reddet
                 </button>
 
                 <button
-                  className="delete-btn"
+                  className="secondary-btn"
                   onClick={() =>
-                    deleteAdvertisement(ad.id)
+                    updateStatus(ad.id, "PENDING")
                   }
                 >
-                  Sil
+                  Beklet
                 </button>
               </div>
             </article>

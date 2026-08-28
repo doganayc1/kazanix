@@ -1,7 +1,15 @@
 ﻿import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { isAdminAuthenticated } from "@/lib/admin-auth";
 
 export async function GET() {
+  if (!(await isAdminAuthenticated())) {
+    return NextResponse.json(
+      { error: "Yetkisiz erisim." },
+      { status: 401 }
+    );
+  }
+
   try {
     const advertisements = await prisma.advertisement.findMany({
       orderBy: {
@@ -10,88 +18,56 @@ export async function GET() {
     });
 
     return NextResponse.json(advertisements);
-  } catch (error) {
-    console.error(error);
-
+  } catch {
     return NextResponse.json(
-      { error: "Reklamlar alınamadı." },
+      { error: "Reklamlar alinamadi." },
       { status: 500 }
     );
   }
 }
 
 export async function PATCH(request: Request) {
-  try {
-    const body = await request.json();
+  if (!(await isAdminAuthenticated())) {
+    return NextResponse.json(
+      { error: "Yetkisiz erisim." },
+      { status: 401 }
+    );
+  }
 
-    const { id, status } = body;
+  try {
+    const { id, status } = await request.json();
 
     if (!id || !status) {
       return NextResponse.json(
-        { error: "ID ve durum zorunludur." },
+        { error: "Eksik bilgi." },
         { status: 400 }
       );
     }
 
     if (
+      status !== "PENDING" &&
       status !== "APPROVED" &&
-      status !== "REJECTED" &&
-      status !== "PENDING"
+      status !== "REJECTED"
     ) {
       return NextResponse.json(
-        { error: "Geçersiz reklam durumu." },
+        { error: "Gecersiz reklam durumu." },
         { status: 400 }
       );
     }
 
-    const advertisement =
-      await prisma.advertisement.update({
-        where: {
-          id,
-        },
-        data: {
-          status,
-        },
-      });
-
-    return NextResponse.json(advertisement);
-  } catch (error) {
-    console.error(error);
-
-    return NextResponse.json(
-      { error: "Reklam güncellenemedi." },
-      { status: 500 }
-    );
-  }
-}
-
-export async function DELETE(request: Request) {
-  try {
-    const body = await request.json();
-
-    const { id } = body;
-
-    if (!id) {
-      return NextResponse.json(
-        { error: "Reklam ID zorunludur." },
-        { status: 400 }
-      );
-    }
-
-    await prisma.advertisement.delete({
+    const advertisement = await prisma.advertisement.update({
       where: {
         id,
       },
+      data: {
+        status,
+      },
     });
 
-    return NextResponse.json({
-      success: true,
-    });
-  } catch (error) {
-    console.error(error);
-
+    return NextResponse.json(advertisement);
+  } catch {
     return NextResponse.json(
-      { error: "Reklam silinemedi." },
+      { error: "Reklam guncellenemedi." },
       { status: 500 }
     );
   }
