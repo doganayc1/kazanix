@@ -1,7 +1,7 @@
 ﻿"use client";
 
-import { useState } from "react";`r`nimport Advertisements from "./advertisements";
-
+import { useState } from "react";
+import Advertisements from "./advertisements";
 const categories = [
   "E-Ticaret",
   "Teknoloji",
@@ -164,7 +164,7 @@ export default function Home() {
           <div className="steps">
             <article className="step-card">
               <div className="step-number">01</div>
-              <div className="step-icon">✦</div>
+   <div className="step-icon">✦</div>
               <h3>Reklaminizi Olusturun</h3>
               <p>
                 Markanizi, kampanyanizi ve hedef kitlenizi belirleyin.
@@ -252,5 +252,7 @@ export default function Home() {
     </main>
   );
 }
+
+
 
 
