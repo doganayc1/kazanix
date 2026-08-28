@@ -3,9 +3,35 @@ import { prisma } from "@/lib/prisma";
 
 export async function GET() {
   try {
+    const now = new Date();
+
+    // Suresi dolan aktif reklamlari EXPIRED yap
+    await prisma.advertisement.updateMany({
+      where: {
+        status: "APPROVED",
+        expiresAt: {
+          lte: now,
+        },
+      },
+      data: {
+        status: "EXPIRED",
+      },
+    });
+
+    // Sadece aktif ve suresi dolmamis reklamlari getir
     const advertisements = await prisma.advertisement.findMany({
       where: {
         status: "APPROVED",
+        OR: [
+          {
+            expiresAt: null,
+          },
+          {
+            expiresAt: {
+              gt: now,
+            },
+          },
+        ],
       },
       orderBy: {
         createdAt: "desc",
@@ -13,7 +39,9 @@ export async function GET() {
     });
 
     return NextResponse.json(advertisements);
-  } catch {
+  } catch (error) {
+    console.error(error);
+
     return NextResponse.json(
       { error: "Reklamlar alınamadı." },
       { status: 500 }
@@ -65,7 +93,7 @@ export async function POST(request: Request) {
       status: 201,
     });
   } catch (error) {
-    console.error("Reklam oluşturma hatası:", error);
+    console.error(error);
 
     return NextResponse.json(
       { error: "Reklam oluşturulamadı." },

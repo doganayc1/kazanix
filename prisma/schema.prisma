@@ -13,6 +13,13 @@ enum Role {
   ADMIN
 }
 
+enum AdvertisementStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  EXPIRED
+}
+
 model User {
   id       String @id @default(cuid())
   name     String
@@ -103,7 +110,7 @@ model Favorite {
 }
 
 model Advertisement {
-  id          String   @id @default(cuid())
+  id          String              @id @default(cuid())
   company     String
   email       String
   title       String
@@ -111,10 +118,9 @@ model Advertisement {
   image       String?
   link        String?
   package     String
-  status      String   @default("PENDING")
+  status      AdvertisementStatus @default(PENDING)
   startsAt    DateTime?
   expiresAt   DateTime?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
 }
-

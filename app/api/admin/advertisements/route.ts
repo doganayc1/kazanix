@@ -1,15 +1,14 @@
-﻿import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { isAdminAuthenticated } from "@/lib/admin-auth";
+import { AdvertisementStatus } from "@prisma/client";
+
+const packageDays: Record<string, number> = {
+  BASLANGIC: 7,
+  STANDART: 30,
+  ONE_CIKAN: 30,
+};
 
 export async function GET() {
-  if (!(await isAdminAuthenticated())) {
-    return NextResponse.json(
-      { error: "Yetkisiz erisim." },
-      { status: 401 }
-    );
-  }
-
   try {
     const advertisements = await prisma.advertisement.findMany({
       orderBy: {
@@ -18,56 +17,126 @@ export async function GET() {
     });
 
     return NextResponse.json(advertisements);
-  } catch {
+  } catch (error) {
+    console.error(error);
+
     return NextResponse.json(
-      { error: "Reklamlar alinamadi." },
+      { error: "Reklamlar alınamadı." },
       { status: 500 }
     );
   }
 }
 
-export async function PATCH(request: Request) {
-  if (!(await isAdminAuthenticated())) {
-    return NextResponse.json(
-      { error: "Yetkisiz erisim." },
-      { status: 401 }
-    );
-  }
-
+export async function PATCH(request: NextRequest) {
   try {
-    const { id, status } = await request.json();
+    const body = await request.json();
+
+    const id = body.id;
+    const status = body.status as AdvertisementStatus;
 
     if (!id || !status) {
       return NextResponse.json(
-        { error: "Eksik bilgi." },
+        { error: "Reklam ID ve durum gereklidir." },
         { status: 400 }
       );
     }
 
-    if (
-      status !== "PENDING" &&
-      status !== "APPROVED" &&
-      status !== "REJECTED"
-    ) {
+    const validStatuses = Object.values(AdvertisementStatus);
+
+    if (!validStatuses.includes(status)) {
       return NextResponse.json(
-        { error: "Gecersiz reklam durumu." },
+        { error: "Geçersiz reklam durumu." },
         { status: 400 }
       );
     }
 
-    const advertisement = await prisma.advertisement.update({
+    const data: {
+      status: AdvertisementStatus;
+      startsAt?: Date | null;
+      expiresAt?: Date | null;
+    } = {
+      status,
+    };
+
+    if (status === AdvertisementStatus.APPROVED) {
+      const existingAdvertisement =
+        await prisma.advertisement.findUnique({
+          where: {
+            id,
+          },
+        });
+
+      if (!existingAdvertisement) {
+        return NextResponse.json(
+          { error: "Reklam bulunamadı." },
+          { status: 404 }
+        );
+      }
+
+      const now = new Date();
+
+      const days =
+        packageDays[existingAdvertisement.package] || 7;
+
+      const expiresAt = new Date(
+        now.getTime() + days * 24 * 60 * 60 * 1000
+      );
+
+      data.startsAt = now;
+      data.expiresAt = expiresAt;
+    }
+
+    if (status === AdvertisementStatus.PENDING) {
+      data.startsAt = null;
+      data.expiresAt = null;
+    }
+
+    const advertisement =
+      await prisma.advertisement.update({
+        where: {
+          id,
+        },
+        data,
+      });
+
+    return NextResponse.json(advertisement);
+  } catch (error) {
+    console.error(error);
+
+    return NextResponse.json(
+      { error: "Reklam güncellenemedi." },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  try {
+    const body = await request.json();
+
+    const id = body.id;
+
+    if (!id) {
+      return NextResponse.json(
+        { error: "Reklam ID gereklidir." },
+        { status: 400 }
+      );
+    }
+
+    await prisma.advertisement.delete({
       where: {
         id,
       },
-      data: {
-        status,
-      },
     });
 
-    return NextResponse.json(advertisement);
-  } catch {
+    return NextResponse.json({
+      success: true,
+    });
+  } catch (error) {
+    console.error(error);
+
     return NextResponse.json(
-      { error: "Reklam guncellenemedi." },
+      { error: "Reklam silinemedi." },
       { status: 500 }
     );
   }
