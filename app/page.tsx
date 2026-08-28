@@ -1,351 +1,272 @@
 ﻿"use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
-type Ad = {
-  id: string;
-  company: string;
-  title: string;
-  description: string;
-  image: string | null;
-  link: string | null;
-  package: string;
-};
-
-const packages = [
-  {
-    id: "starter",
-    name: "Başlangıç",
-    price: "₺499",
-    duration: "7 gün",
-  },
-  {
-    id: "popular",
-    name: "Öne Çıkan",
-    price: "₺999",
-    duration: "15 gün",
-  },
-  {
-    id: "premium",
-    name: "Premium",
-    price: "₺1.999",
-    duration: "30 gün",
-  },
+const categories = [
+  "E-Ticaret",
+  "Teknoloji",
+  "Finans",
+  "Mobil Uygulama",
+  "Egitim",
+  "Diger",
 ];
 
 export default function Home() {
-  const [ads, setAds] = useState<Ad[]>([]);
-  const [selected, setSelected] = useState("popular");
-  const [loading, setLoading] = useState(false);
-  const [sent, setSent] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
-  async function loadAds() {
-    try {
-      const response = await fetch("/api/advertisements/active", {
-        cache: "no-store",
-      });
+  const scrollToAds = () => {
+    document.getElementById("reklamlar")?.scrollIntoView({
+      behavior: "smooth",
+    });
+  };
 
-      if (response.ok) {
-        const data = await response.json();
-        setAds(Array.isArray(data) ? data : []);
-      }
-    } catch {
-      setAds([]);
-    }
-  }
-
-  useEffect(() => {
-    loadAds();
-  }, []);
-
-  async function submit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-
-    setLoading(true);
-    setSent(false);
-
-    const form = new FormData(e.currentTarget);
-
-    try {
-      const response = await fetch("/api/advertisements", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          company: form.get("company"),
-          email: form.get("email"),
-          title: form.get("title"),
-          description: form.get("description"),
-          image: form.get("image"),
-          link: form.get("link"),
-          package: form.get("package"),
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error();
-      }
-
-      setSent(true);
-      e.currentTarget.reset();
-      setSelected("");
-    } catch {
-      alert("Başvuru gönderilemedi.");
-    } finally {
-      setLoading(false);
-    }
-  }
+  const scrollToContact = () => {
+    document.getElementById("iletisim")?.scrollIntoView({
+      behavior: "smooth",
+    });
+  };
 
   return (
-    <main className="min-h-screen bg-zinc-950 text-white">
-
-      <header className="border-b border-zinc-800">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5">
-          <a href="/" className="text-2xl font-black">
-            KAZANIX<span className="text-yellow-400">.</span>
+    <main>
+      <nav className="navbar">
+        <div className="container nav-inner">
+          <a href="#" className="logo">
+            KAZAN<span>IX</span>
           </a>
 
-          <a
-            href="#reklam-ver"
-            className="rounded-xl bg-yellow-400 px-5 py-3 font-bold text-black"
+          <button
+            className="mobile-menu"
+            onClick={() => setMenuOpen(!menuOpen)}
+            aria-label="Menu"
           >
-            Reklam Ver
-          </a>
+            ☰
+          </button>
+
+          <div className={`nav-links ${menuOpen ? "show" : ""}`}>
+            <a href="#anasayfa">Ana Sayfa</a>
+            <a href="#nasil-calisir">Nasil Calisir?</a>
+            <a href="#reklamlar">Reklamlar</a>
+            <a href="#iletisim">Iletisim</a>
+            <button onClick={scrollToContact}>Reklam Ver</button>
+          </div>
         </div>
-      </header>
+      </nav>
 
-      <section className="border-b border-zinc-800">
-        <div className="mx-auto max-w-7xl px-6 py-20">
-          <div className="max-w-4xl">
-
-            <div className="inline-block rounded-full border border-yellow-400/30 bg-yellow-400/10 px-4 py-2 text-sm font-bold text-yellow-400">
-              KAZANIX REKLAM PLATFORMU
+      <section className="hero" id="anasayfa">
+        <div className="container hero-grid">
+          <div className="hero-content">
+            <div className="badge">
+              <span></span>
+              YENI NESIL REKLAM PLATFORMU
             </div>
 
-            <h1 className="mt-6 text-5xl font-black md:text-7xl">
-              Markanı
+            <h1>
+              Markanizi
               <br />
-              <span className="text-yellow-400">
-                milyonlara ulaştır.
-              </span>
+              <strong>Dogru Kitleyle</strong>
+              <br />
+              Bulusturun.
             </h1>
 
-            <p className="mt-6 max-w-2xl text-lg leading-8 text-zinc-400">
-              Markanızı, ürününüzü veya hizmetinizi KAZANIX
-              üzerinde tanıtın.
+            <p>
+              Kazanix ile markanizi daha fazla kisiye ulastirin.
+              Dijital reklam alanlarinizi yonetin ve yeni musteri
+              potansiyellerine ulasin.
             </p>
 
+            <div className="hero-buttons">
+              <button className="primary-btn" onClick={scrollToContact}>
+                Reklam Vermeye Basla
+                <span>→</span>
+              </button>
+
+              <button className="secondary-btn" onClick={scrollToAds}>
+                Reklamlari Kesfet
+              </button>
+            </div>
+
+            <div className="hero-stats">
+              <div>
+                <strong>10K+</strong>
+                <span>Potansiyel Erisim</span>
+              </div>
+              <div>
+                <strong>100+</strong>
+                <span>Reklam Firsati</span>
+              </div>
+              <div>
+                <strong>7/24</strong>
+                <span>Yayin Kontrolu</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="hero-card">
+            <div className="glow glow-one"></div>
+            <div className="glow glow-two"></div>
+
+            <div className="dashboard">
+              <div className="dash-top">
+                <span className="mini-logo">K</span>
+                <span>Reklam Performansi</span>
+                <span className="live">CANLI</span>
+              </div>
+
+              <div className="chart-card">
+                <span>Toplam Goruntulenme</span>
+                <strong>128.4K</strong>
+                <small>+24.8% bu ay</small>
+                <div className="chart">
+                  <i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+                  <i></i><i></i><i></i><i></i><i></i>
+                </div>
+              </div>
+
+              <div className="dash-bottom">
+                <div>
+                  <span>Tiklanma</span>
+                  <strong>12.8K</strong>
+                </div>
+                <div>
+                  <span>Dönusum</span>
+                  <strong>%8.4</strong>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-6 py-16">
-
-        <div className="mb-10">
-          <p className="text-sm font-bold uppercase tracking-widest text-yellow-400">
-            SPONSORLU
-          </p>
-
-          <h2 className="mt-2 text-3xl font-black">
-            Güncel reklamlar
-          </h2>
+      <section className="brands">
+        <div className="container">
+          <p>MARKANIZIN DIJITAL BUYUMESI ICIN TEK NOKTA</p>
+          <div className="brand-row">
+            <span>KAZANIX</span>
+            <span>DIGITAL</span>
+            <span>GROWTH</span>
+            <span>REACH</span>
+            <span>MEDIA</span>
+          </div>
         </div>
+      </section>
 
-        {ads.length === 0 ? (
-          <div className="rounded-3xl border border-zinc-800 bg-zinc-900 p-10 text-center">
-            <h3 className="text-2xl font-bold">
-              Henüz yayınlanan reklam yok
-            </h3>
-
-            <p className="mt-3 text-zinc-500">
-              İlk reklamı vermek için aşağıdaki formu kullanabilirsin.
+      <section className="section" id="nasil-calisir">
+        <div className="container">
+          <div className="section-heading">
+            <span>NASIL CALISIR?</span>
+            <h2>Reklaminizi dakikalar icinde yayinlayin.</h2>
+            <p>
+              Karmaşık süreçler olmadan markanızı ve kampanyanızı
+              potansiyel müşterilerle buluşturun.
             </p>
           </div>
-        ) : (
-          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
 
-            {ads.map((ad) => (
-              <article
-                key={ad.id}
-                className="overflow-hidden rounded-3xl border border-zinc-800 bg-zinc-900"
-              >
+          <div className="steps">
+            <article className="step-card">
+              <div className="step-number">01</div>
+              <div className="step-icon">✦</div>
+              <h3>Reklaminizi Olusturun</h3>
+              <p>
+                Markanizi, kampanyanizi ve hedef kitlenizi belirleyin.
+              </p>
+            </article>
 
-                {ad.image ? (
-                  <img
-                    src={ad.image}
-                    alt={ad.title}
-                    className="h-56 w-full object-cover"
-                  />
-                ) : (
-                  <div className="flex h-56 items-center justify-center bg-zinc-800">
-                    <span className="text-3xl font-black text-yellow-400">
-                      KAZANIX
-                    </span>
+            <article className="step-card featured">
+              <div className="step-number">02</div>
+              <div className="step-icon">◉</div>
+              <h3>Hedef Kitlenize Ulasin</h3>
+              <p>
+                Reklaminiz ilgili kullanicilar tarafindan kesfedilsin.
+              </p>
+            </article>
+
+            <article className="step-card">
+              <div className="step-number">03</div>
+              <div className="step-icon">↗</div>
+              <h3>Sonuclari Takip Edin</h3>
+              <p>
+                Performans verilerini takip edin ve reklamlarinizi gelistirin.
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section className="ads-section" id="reklamlar">
+        <div className="container">
+          <div className="ads-header">
+            <div>
+              <span>ONE CIKANLAR</span>
+              <h2>Yeni Firsatlari Kesfedin.</h2>
+            </div>
+            <button className="secondary-btn" onClick={scrollToContact}>
+              Siz de Reklam Ver
+            </button>
+          </div>
+
+          <div className="ad-grid">
+            {categories.map((category, index) => (
+              <article className="ad-card" key={category}>
+                <div className={`ad-visual visual-${index + 1}`}>
+                  <span>{category}</span>
+                </div>
+                <div className="ad-content">
+                  <div className="ad-meta">
+                    <span>SPONSORLU</span>
+                    <small>{category}</small>
                   </div>
-                )}
-
-                <div className="p-6">
-
-                  <div className="flex items-center justify-between">
-                    <span className="font-bold text-yellow-400">
-                      {ad.company}
-                    </span>
-
-                    <span className="rounded-full bg-yellow-400/10 px-3 py-1 text-xs font-bold text-yellow-400">
-                      SPONSORLU
-                    </span>
-                  </div>
-
-                  <h3 className="mt-4 text-2xl font-black">
-                    {ad.title}
+                  <h3>
+                    Dijital dunyada markanizi bir sonraki seviyeye tasiyin.
                   </h3>
-
-                  <p className="mt-3 leading-6 text-zinc-400">
-                    {ad.description}
-                  </p>
-
-                  {ad.link && (
-                    <a
-                      href={ad.link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="mt-6 block rounded-xl bg-yellow-400 py-3 text-center font-black text-black"
-                    >
-                      İncele
-                    </a>
-                  )}
-
+                  <button>Detaylari Gor →</button>
                 </div>
               </article>
             ))}
-
-          </div>
-        )}
-      </section>
-
-      <section
-        id="reklam-ver"
-        className="border-t border-zinc-800 bg-zinc-900"
-      >
-        <div className="mx-auto max-w-4xl px-6 py-20">
-
-          <div className="rounded-3xl border border-zinc-800 bg-zinc-950 p-8 md:p-10">
-
-            <p className="text-sm font-bold uppercase tracking-widest text-yellow-400">
-              REKLAM VER
-            </p>
-
-            <h2 className="mt-3 text-4xl font-black">
-              Reklam başvurusu
-            </h2>
-
-            <p className="mt-4 text-zinc-500">
-              Başvurunuz önce admin tarafından incelenir.
-              Test modunda ödeme alınmamaktadır.
-            </p>
-
-            <form
-              onSubmit={submit}
-              className="mt-8 space-y-5"
-            >
-
-              <input
-                name="company"
-                required
-                placeholder="Firma adı"
-                className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-5 py-4 outline-none focus:border-yellow-400"
-              />
-
-              <input
-                name="email"
-                required
-                type="email"
-                placeholder="E-posta"
-                className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-5 py-4 outline-none focus:border-yellow-400"
-              />
-
-              <input
-                name="title"
-                required
-                placeholder="Reklam başlığı"
-                className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-5 py-4 outline-none focus:border-yellow-400"
-              />
-
-              <textarea
-                name="description"
-                required
-                rows={5}
-                placeholder="Reklam açıklaması"
-                className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-5 py-4 outline-none focus:border-yellow-400"
-              />
-
-              <input
-                name="image"
-                type="url"
-                placeholder="Görsel URL'si (isteğe bağlı)"
-                className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-5 py-4 outline-none focus:border-yellow-400"
-              />
-
-              <input
-                name="link"
-                type="url"
-                placeholder="Reklam bağlantısı (isteğe bağlı)"
-                className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-5 py-4 outline-none focus:border-yellow-400"
-              />
-
-              <select
-                name="package"
-                required
-                value={selected}
-                onChange={(e) => setSelected(e.target.value)}
-                className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-5 py-4"
-              >
-                <option value="">
-                  Paket seç
-                </option>
-
-                {packages.map((item) => (
-                  <option
-                    key={item.id}
-                    value={item.id}
-                  >
-                    {item.name} - {item.price} / {item.duration}
-                  </option>
-                ))}
-              </select>
-
-              <button
-                disabled={loading}
-                className="w-full rounded-xl bg-yellow-400 py-4 font-black text-black disabled:opacity-50"
-              >
-                {loading
-                  ? "Gönderiliyor..."
-                  : "Reklam Başvurusu Gönder"}
-              </button>
-
-            </form>
-
-            {sent && (
-              <div className="mt-6 rounded-2xl border border-green-500/30 bg-green-500/10 p-5 text-green-400">
-                <strong>Başvuru alındı.</strong>
-                <br />
-                <span className="text-sm text-zinc-400">
-                  Admin onayından sonra reklam yayınlanabilir.
-                </span>
-              </div>
-            )}
-
           </div>
         </div>
       </section>
 
-      <footer className="border-t border-zinc-800">
-        <div className="mx-auto max-w-7xl px-6 py-8 text-center text-sm text-zinc-500">
-          © {new Date().getFullYear()} KAZANIX
+      <section className="cta" id="iletisim">
+        <div className="container cta-box">
+          <div>
+            <span>REKLAMINIZI YAYINLAMAYA HAZIR MISINIZ?</span>
+            <h2>Markanizin hikayesi daha fazla kisiye ulassin.</h2>
+            <p>
+              Kazanix ile dijital gorunurlugunuzu guclendirin.
+            </p>
+          </div>
+
+          <a
+            className="primary-btn"
+            href="mailto:iletisim@kazanix.com"
+          >
+            Bizimle Iletisime Gec
+            <span>→</span>
+          </a>
+        </div>
+      </section>
+
+      <footer>
+        <div className="container footer-inner">
+          <div>
+            <a href="#" className="logo">
+              KAZAN<span>IX</span>
+            </a>
+            <p>Dijital reklam ve marka gorunurlugu platformu.</p>
+          </div>
+
+          <div className="footer-links">
+            <a href="#anasayfa">Ana Sayfa</a>
+            <a href="#nasil-calisir">Nasil Calisir?</a>
+            <a href="#reklamlar">Reklamlar</a>
+            <a href="#iletisim">Iletisim</a>
+          </div>
+        </div>
+
+        <div className="container copyright">
+          © 2026 Kazanix. Tum haklari saklidir.
         </div>
       </footer>
-
     </main>
   );
 }

@@ -1,10 +1,9 @@
-﻿import "./globals.css";
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
+import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "KAZANIX | Reklamları ve Kampanyaları Keşfet",
-  description:
-    "KAZANIX ile markaları, kampanyaları ve sponsorlu reklamları keşfet. Markanı KAZANIX'ta tanıt.",
+  title: "Kazanix | Dijital Reklam Platformu",
+  description: "Markanizi dijitalde one cikarın.",
 };
 
 export default function RootLayout({
@@ -18,5 +17,3 @@ export default function RootLayout({
     </html>
   );
 }
-
-
