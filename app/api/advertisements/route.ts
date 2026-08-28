@@ -1,37 +1,40 @@
-﻿import { NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { AdvertisementStatus } from "@prisma/client";
+
+const packageDays: Record<string, number> = {
+  BASLANGIC: 7,
+  STANDART: 30,
+  ONE_CIKAN: 30,
+};
 
 export async function GET() {
   try {
     const now = new Date();
 
-    // Suresi dolan aktif reklamlari EXPIRED yap
+    // Süresi dolan reklamları otomatik EXPIRED yap
     await prisma.advertisement.updateMany({
       where: {
-        status: "APPROVED",
+        status: AdvertisementStatus.APPROVED,
         expiresAt: {
           lte: now,
         },
       },
       data: {
-        status: "EXPIRED",
+        status: AdvertisementStatus.EXPIRED,
       },
     });
 
-    // Sadece aktif ve suresi dolmamis reklamlari getir
+    // Sadece aktif ve süresi dolmamış reklamları getir
     const advertisements = await prisma.advertisement.findMany({
       where: {
-        status: "APPROVED",
-        OR: [
-          {
-            expiresAt: null,
-          },
-          {
-            expiresAt: {
-              gt: now,
-            },
-          },
-        ],
+        status: AdvertisementStatus.APPROVED,
+        startsAt: {
+          lte: now,
+        },
+        expiresAt: {
+          gt: now,
+        },
       },
       orderBy: {
         createdAt: "desc",
@@ -76,6 +79,24 @@ export async function POST(request: Request) {
       );
     }
 
+    const validPackages = Object.keys(packageDays);
+
+    if (!validPackages.includes(selectedPackage)) {
+      return NextResponse.json(
+        { error: "Geçersiz reklam paketi." },
+        { status: 400 }
+      );
+    }
+
+    // Otomatik onay ve süre hesaplama
+    const now = new Date();
+
+    const days = packageDays[selectedPackage];
+
+    const expiresAt = new Date(
+      now.getTime() + days * 24 * 60 * 60 * 1000
+    );
+
     const advertisement = await prisma.advertisement.create({
       data: {
         company,
@@ -85,7 +106,15 @@ export async function POST(request: Request) {
         image: image || null,
         link: link || null,
         package: selectedPackage,
-        status: "PENDING",
+
+        // Otomatik onay
+        status: AdvertisementStatus.APPROVED,
+
+        // Otomatik başlangıç
+        startsAt: now,
+
+        // Pakete göre otomatik bitiş
+        expiresAt,
       },
     });
 
