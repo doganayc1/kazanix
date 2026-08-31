@@ -3,42 +3,20 @@ import { prisma } from "@/lib/prisma";
 import { getAdvertiserSession } from "@/lib/advertiser-auth";
 import { AdvertisementStatus } from "@prisma/client";
 
-const packages: Record<
-  string,
-  {
-    price: number;
-    days: number;
-  }
-> = {
-  BASLANGIC: {
-    price: 499,
-    days: 7,
-  },
-
-  STANDART: {
-    price: 1499,
-    days: 30,
-  },
-
-  ONE_CIKAN: {
-    price: 2999,
-    days: 30,
-  },
+const packages: Record<string, number> = {
+  BASLANGIC: 499,
+  STANDART: 1499,
+  ONE_CIKAN: 2999,
 };
 
 export async function GET() {
   try {
-    const session =
-      await getAdvertiserSession();
+    const session = await getAdvertiserSession();
 
     if (!session) {
       return NextResponse.json(
-        {
-          error: "Oturum bulunamadi.",
-        },
-        {
-          status: 401,
-        }
+        { error: "Oturum bulunamadi." },
+        { status: 401 }
       );
     }
 
@@ -47,54 +25,34 @@ export async function GET() {
         where: {
           advertiserId: session.id,
         },
-
         orderBy: {
           createdAt: "desc",
         },
       });
 
-    return NextResponse.json(
-      advertisements
-    );
-
+    return NextResponse.json(advertisements);
   } catch (error) {
-
     console.error(error);
 
     return NextResponse.json(
-      {
-        error:
-          "Reklamlar yuklenemedi.",
-      },
-      {
-        status: 500,
-      }
+      { error: "Reklamlar yuklenemedi." },
+      { status: 500 }
     );
   }
 }
 
-export async function POST(
-  request: NextRequest
-) {
+export async function POST(request: NextRequest) {
   try {
-
-    const session =
-      await getAdvertiserSession();
+    const session = await getAdvertiserSession();
 
     if (!session) {
       return NextResponse.json(
-        {
-          error:
-            "Oturum bulunamadi.",
-        },
-        {
-          status: 401,
-        }
+        { error: "Oturum bulunamadi." },
+        { status: 401 }
       );
     }
 
-    const body =
-      await request.json();
+    const body = await request.json();
 
     const {
       company,
@@ -112,116 +70,65 @@ export async function POST(
       !selectedPackage
     ) {
       return NextResponse.json(
-        {
-          error:
-            "Zorunlu alanlari doldurun.",
-        },
-        {
-          status: 400,
-        }
+        { error: "Zorunlu alanlari doldurun." },
+        { status: 400 }
       );
     }
 
-    const packageInfo =
+    const packagePrice =
       packages[selectedPackage];
 
-    if (!packageInfo) {
+    if (packagePrice === undefined) {
       return NextResponse.json(
-        {
-          error:
-            "Gecersiz reklam paketi.",
-        },
-        {
-          status: 400,
-        }
+        { error: "Gecersiz reklam paketi." },
+        { status: 400 }
       );
     }
 
     const advertisement =
       await prisma.advertisement.create({
         data: {
-
-          advertiserId:
-            session.id,
-
+          advertiserId: session.id,
           company,
-
-          email:
-            session.email,
-
+          email: session.email,
           title,
-
           description,
-
-          image:
-            image || null,
-
-          link:
-            link || null,
-
-          package:
-            selectedPackage,
-
-          packagePrice:
-            packageInfo.price,
-
-          status:
-            AdvertisementStatus.PENDING,
-
-          startsAt:
-            null,
-
-          expiresAt:
-            null,
-
+          image: image || null,
+          link: link || null,
+          package: selectedPackage,
+          packagePrice,
+          status: AdvertisementStatus.PENDING,
+          startsAt: null,
+          expiresAt: null,
         },
       });
 
     return NextResponse.json(
       advertisement,
-      {
-        status: 201,
-      }
+      { status: 201 }
     );
-
   } catch (error) {
-
     console.error(error);
 
     return NextResponse.json(
-      {
-        error:
-          "Reklam olusturulamadi.",
-      },
-      {
-        status: 500,
-      }
+      { error: "Reklam olusturulamadi." },
+      { status: 500 }
     );
   }
 }
 
-export async function PATCH(
-  request: NextRequest
-) {
+export async function PATCH(request: NextRequest) {
   try {
-
-    const session =
-      await getAdvertiserSession();
+    const session = await getAdvertiserSession();
 
     if (!session) {
       return NextResponse.json(
-        {
-          error:
-            "Oturum bulunamadi.",
-        },
-        {
-          status: 401,
-        }
+        { error: "Oturum bulunamadi." },
+        { status: 401 }
       );
     }
 
-    const body =
-      await request.json();
+    const body = await request.json();
 
     const {
       id,
@@ -235,13 +142,8 @@ export async function PATCH(
 
     if (!id) {
       return NextResponse.json(
-        {
-          error:
-            "Reklam ID gerekli.",
-        },
-        {
-          status: 400,
-        }
+        { error: "Reklam ID gerekli." },
+        { status: 400 }
       );
     }
 
@@ -249,20 +151,14 @@ export async function PATCH(
       await prisma.advertisement.findFirst({
         where: {
           id,
-          advertiserId:
-            session.id,
+          advertiserId: session.id,
         },
       });
 
     if (!advertisement) {
       return NextResponse.json(
-        {
-          error:
-            "Reklam bulunamadi.",
-        },
-        {
-          status: 404,
-        }
+        { error: "Reklam bulunamadi." },
+        { status: 404 }
       );
     }
 
@@ -273,42 +169,36 @@ export async function PATCH(
       return NextResponse.json(
         {
           error:
-            "Onaylanmis reklam duzenlenemez.",
+            "Aktif reklami duzenlemek icin once reklam yonetimi ile iletisime gecin.",
         },
-        {
-          status: 400,
-        }
+        { status: 400 }
       );
     }
 
-    const packageInfo =
-      selectedPackage
-        ? packages[selectedPackage]
-        : null;
+    let packagePrice =
+      advertisement.packagePrice;
 
-    if (
-      selectedPackage &&
-      !packageInfo
-    ) {
-      return NextResponse.json(
-        {
-          error:
-            "Gecersiz paket.",
-        },
-        {
-          status: 400,
-        }
-      );
+    if (selectedPackage) {
+      if (
+        packages[selectedPackage] === undefined
+      ) {
+        return NextResponse.json(
+          { error: "Gecersiz reklam paketi." },
+          { status: 400 }
+        );
+      }
+
+      packagePrice =
+        packages[selectedPackage];
     }
 
-    const updatedAdvertisement =
+    const updated =
       await prisma.advertisement.update({
         where: {
           id,
         },
 
         data: {
-
           company:
             company ??
             advertisement.company,
@@ -335,72 +225,47 @@ export async function PATCH(
             selectedPackage ??
             advertisement.package,
 
-          packagePrice:
-            packageInfo
-              ? packageInfo.price
-              : advertisement.packagePrice,
+          packagePrice,
 
           status:
             AdvertisementStatus.PENDING,
 
+          startsAt: null,
+
+          expiresAt: null,
         },
       });
 
-    return NextResponse.json(
-      updatedAdvertisement
-    );
-
+    return NextResponse.json(updated);
   } catch (error) {
-
     console.error(error);
 
     return NextResponse.json(
-      {
-        error:
-          "Reklam guncellenemedi.",
-      },
-      {
-        status: 500,
-      }
+      { error: "Reklam guncellenemedi." },
+      { status: 500 }
     );
   }
 }
 
-export async function DELETE(
-  request: NextRequest
-) {
+export async function DELETE(request: NextRequest) {
   try {
-
-    const session =
-      await getAdvertiserSession();
+    const session = await getAdvertiserSession();
 
     if (!session) {
       return NextResponse.json(
-        {
-          error:
-            "Oturum bulunamadi.",
-        },
-        {
-          status: 401,
-        }
+        { error: "Oturum bulunamadi." },
+        { status: 401 }
       );
     }
 
-    const body =
-      await request.json();
+    const body = await request.json();
 
-    const { id } =
-      body;
+    const { id } = body;
 
     if (!id) {
       return NextResponse.json(
-        {
-          error:
-            "Reklam ID gerekli.",
-        },
-        {
-          status: 400,
-        }
+        { error: "Reklam ID gerekli." },
+        { status: 400 }
       );
     }
 
@@ -408,20 +273,14 @@ export async function DELETE(
       await prisma.advertisement.findFirst({
         where: {
           id,
-          advertiserId:
-            session.id,
+          advertiserId: session.id,
         },
       });
 
     if (!advertisement) {
       return NextResponse.json(
-        {
-          error:
-            "Reklam bulunamadi.",
-        },
-        {
-          status: 404,
-        }
+        { error: "Reklam bulunamadi." },
+        { status: 404 }
       );
     }
 
@@ -434,19 +293,12 @@ export async function DELETE(
     return NextResponse.json({
       success: true,
     });
-
   } catch (error) {
-
     console.error(error);
 
     return NextResponse.json(
-      {
-        error:
-          "Reklam silinemedi.",
-      },
-      {
-        status: 500,
-      }
+      { error: "Reklam silinemedi." },
+      { status: 500 }
     );
   }
 }
