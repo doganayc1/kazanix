@@ -45,7 +45,7 @@ const initialForm: AdvertisementForm = {
 };
 
 const packageNames: Record<string, string> = {
-  BASLANGIC: "Baslangic",
+  BASLANGIC: "Başlangıç",
   STANDART: "Standart",
   ONE_CIKAN: "One Cikan",
 };
@@ -163,15 +163,15 @@ export default function AdvertiserPage() {
       if (!response.ok) {
         setMessage(
           data.error ||
-          "Islem basarisiz."
+          "Islem başarısız."
         );
         return;
       }
 
       setMessage(
         editingId
-          ? "Reklam guncellendi ve yeniden onaya gonderildi."
-          : "Reklam basariyla olusturuldu."
+          ? "Reklam guncellendi ve yeniden onaya gönderildi."
+          : "Reklam basariyla oluşturuldu."
       );
 
       setForm(initialForm);
@@ -292,7 +292,7 @@ export default function AdvertiserPage() {
       <main className="advertiser-page">
         <div className="advertiser-container">
           <h1>Reklamveren Paneli</h1>
-          <p>Veriler yukleniyor...</p>
+          <p>Veriler yükleniyor...</p>
         </div>
       </main>
     );
@@ -313,7 +313,7 @@ export default function AdvertiserPage() {
             </h1>
 
             <p>
-              Reklamlarini olustur,
+              Reklamlarini oluştur,
               takip et ve yonet.
             </p>
           </div>
@@ -378,7 +378,7 @@ export default function AdvertiserPage() {
             <h2>
               {editingId
                 ? "Reklamini Guncelle"
-                : "Yeni Reklam Olustur"}
+                : "Yeni Reklam Oluştur"}
             </h2>
           </div>
 
@@ -420,7 +420,7 @@ export default function AdvertiserPage() {
               </label>
 
               <label className="full-width">
-                Reklam Aciklamasi
+                Reklam Açıklamasi
 
                 <textarea
                   rows={5}
@@ -478,7 +478,7 @@ export default function AdvertiserPage() {
                   }
                 >
                   <option value="BASLANGIC">
-                    Baslangic - 499 TL / 7 Gun
+                    Başlangıç - 499 TL / 7 Gun
                   </option>
 
                   <option value="STANDART">
@@ -510,7 +510,7 @@ export default function AdvertiserPage() {
                   ? "Kaydediliyor..."
                   : editingId
                     ? "Reklami Guncelle"
-                    : "Reklam Olustur"}
+                    : "Reklam Oluştur"}
               </button>
 
               {editingId && (
@@ -541,7 +541,7 @@ export default function AdvertiserPage() {
           {advertisements.length === 0 ? (
 
             <div className="empty-state">
-              Henuz reklam olusturmadiniz.
+              Henuz reklam oluşturmadiniz.
             </div>
 
           ) : (
@@ -592,7 +592,7 @@ export default function AdvertiserPage() {
                     </span>
 
                     <span>
-                      Baslangic:{" "}
+                      Başlangıç:{" "}
                       {formatDate(
                         ad.startsAt
                       )}
@@ -618,7 +618,7 @@ export default function AdvertiserPage() {
                         "APPROVED"
                       }
                     >
-                      Duzenle
+                      Düzenle
                     </button>
 
                     <button

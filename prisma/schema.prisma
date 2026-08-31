@@ -122,6 +122,8 @@ model Advertisement {
   link         String?
   package      String
   packagePrice Int                 @default(0)
+  impressions  Int                 @default(0)
+  clicks       Int                 @default(0)
   status       AdvertisementStatus @default(PENDING)
   startsAt     DateTime?
   expiresAt    DateTime?

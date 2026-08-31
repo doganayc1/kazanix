@@ -52,18 +52,18 @@ export default function AdvertiserLoginPage() {
     if (!response.ok) {
       setError(
         data.error ||
-          "Giris basarisiz."
+          "Giris başarısız."
       );
 
       return;
     }
 
     window.location.href =
-      "/reklamveren";
+      "/reklam-veren";
   }
 
   return (
-    <main className="advertiser-page">
+    <main className="kazanix-user-dark" >
 
       <div className="advertiser-container">
 
@@ -79,7 +79,7 @@ export default function AdvertiserLoginPage() {
 
           <p>
             Reklamlarinizi
-            yonetmek icin giris yapin.
+            yonetmek icin giriş yapin.
           </p>
 
           <form
@@ -101,7 +101,7 @@ export default function AdvertiserLoginPage() {
 
             <input
               type="password"
-              placeholder="Sifre"
+              placeholder="Şifre"
               value={password}
               onChange={(event) =>
                 setPassword(
@@ -115,7 +115,7 @@ export default function AdvertiserLoginPage() {
               type="submit"
               className="submit-ad-button"
             >
-              Giris Yap
+              Giriş Yap
             </button>
 
           </form>
@@ -129,8 +129,8 @@ export default function AdvertiserLoginPage() {
           <p>
             Hesabiniz yok mu?{" "}
 
-            <a href="/reklamveren/kayit">
-              Kayit Ol
+            <a href="/reklam-veren/giris">
+              Kayıt Ol
             </a>
           </p>
 

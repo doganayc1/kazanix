@@ -1,22 +1,19 @@
-import { MetadataRoute } from "next";
+﻿import type { MetadataRoute } from "next"
+import { siteUrl } from "@/lib/site-url"
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const siteUrl =
-    process.env.NEXT_PUBLIC_APP_URL ||
-    "https://kazanix-51h5.vercel.app";
-
   return [
     {
       url: siteUrl,
       lastModified: new Date(),
-      changeFrequency: "daily",
+      changeFrequency: "weekly",
       priority: 1,
     },
     {
-      url: `${siteUrl}/reklam-ver`,
+      url: `${siteUrl}/reklam-veren`,
       lastModified: new Date(),
       changeFrequency: "weekly",
       priority: 0.8,
     },
-  ];
+  ]
 }

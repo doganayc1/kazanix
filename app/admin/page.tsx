@@ -1,609 +1,931 @@
 "use client";
 
-import {
-  useEffect,
-  useState,
-} from "react";
+import Link from "next/link";
 
-type Advertisement = {
-  id: string;
-  company: string;
-  email: string;
-  title: string;
-  description: string;
-  package: string;
-  packagePrice: number;
-  status: string;
-  startsAt: string | null;
-  expiresAt: string | null;
-  createdAt: string;
-};
+const stats = [
+  {
+    label: "Toplam Reklam",
+    value: "—",
+    detail: "Platformdaki toplam reklam",
+  },
+  {
+    label: "Yayindaki Reklamlar",
+    value: "—",
+    detail: "Aktif olarak yayinlanan",
+  },
+  {
+    label: "Onay Bekleyen",
+    value: "—",
+    detail: "Inceleme gerektiren",
+  },
+  {
+    label: "Reklam Verenler",
+    value: "—",
+    detail: "Kayitli isletmeler",
+  },
+];
 
-type Statistics = {
-  total: number;
-  pending: number;
-  approved: number;
-  rejected: number;
-  expired: number;
-  revenue: number;
-  recentAdvertisements: number;
-  topAdvertisements: {
-    id: string;
-    company: string;
-    title: string;
-    package: string;
-    packagePrice: number;
-    status: string;
-  }[];
-};
+const menu = [
+  {
+    title: "Genel Bakis",
+    href: "/admin",
+    icon: "⌂",
+  },
+  {
+    title: "Reklamlar",
+    href: "/admin",
+    icon: "▣",
+  },
+  {
+    title: "Reklam Verenler",
+    href: "/admin/advertisers",
+    icon: "○",
+  },
+  {
+    title: "�demeler",
+    href: "/admin/payments",
+    icon: "₺",
+  },
+  {
+    title: "Kampanyalar",
+    href: "/admin/campaigns",
+    icon: "◇",
+  },
+  {
+    title: "Kategoriler",
+    href: "/admin/categories",
+    icon: "≡",
+  },
+  {
+    title: "Kullanicilar",
+    href: "/admin/users",
+    icon: "�?",
+  },
+  {
+    title: "Raporlar",
+    href: "/admin/reports",
+    icon: "↗",
+  },
+  {
+    title: "Bildirimler",
+    href: "/admin/notifications",
+    icon: "◌",
+  },
+  {
+    title: "Ayarlar",
+    href: "/admin/settings",
+    icon: "⚙",
+  },
+];
 
-export default function AdminPage() {
-  const [authenticated, setAuthenticated] =
-    useState(false);
-
-  const [checkingAuth, setCheckingAuth] =
-    useState(true);
-
-  const [password, setPassword] =
-    useState("");
-
-  const [loginError, setLoginError] =
-    useState("");
-
-  const [
-    advertisements,
-    setAdvertisements,
-  ] = useState<Advertisement[]>([]);
-
-  const [statistics, setStatistics] =
-    useState<Statistics | null>(null);
-
-  const [loading, setLoading] =
-    useState(true);
-
-  async function loadData() {
+export default function AdminDashboard() {
+  async function handleLogout() {
     try {
-      setLoading(true);
-
-      const responses =
-        await Promise.all([
-          fetch(
-            "/api/admin/advertisements"
-          ),
-          fetch(
-            "/api/admin/statistics"
-          ),
-        ]);
-
-      if (
-        responses[0].status === 401 ||
-        responses[1].status === 401
-      ) {
-        setAuthenticated(false);
-        return;
-      }
-
-      if (responses[0].ok) {
-        setAdvertisements(
-          await responses[0].json()
-        );
-      }
-
-      if (responses[1].ok) {
-        setStatistics(
-          await responses[1].json()
-        );
-      }
-
-      setAuthenticated(true);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
-      setCheckingAuth(false);
-    }
-  }
-
-  useEffect(() => {
-    loadData();
-  }, []);
-
-  async function login(
-    event: React.FormEvent
-  ) {
-    event.preventDefault();
-
-    setLoginError("");
-
-    try {
-      const response = await fetch(
-        "/api/admin/login",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type":
-              "application/json",
-          },
-          body: JSON.stringify({
-            password,
-          }),
-        }
-      );
-
-      if (!response.ok) {
-        setLoginError(
-          "Hatalı şifre."
-        );
-        return;
-      }
-
-      setPassword("");
-      await loadData();
-    } catch {
-      setLoginError(
-        "Giriş sırasında hata oluştu."
-      );
-    }
-  }
-
-  async function logout() {
-    await fetch(
-      "/api/admin/logout",
-      {
+      await fetch("/api/admin/logout", {
         method: "POST",
-      }
-    );
-
-    setAuthenticated(false);
-    setAdvertisements([]);
-    setStatistics(null);
-  }
-
-  async function updateStatus(
-    id: string,
-    status: string
-  ) {
-    try {
-      const response = await fetch(
-        "/api/admin/advertisements",
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type":
-              "application/json",
-          },
-          body: JSON.stringify({
-            id,
-            status,
-          }),
-        }
-      );
-
-      if (!response.ok) {
-        alert(
-          "Reklam güncellenemedi."
-        );
-        return;
-      }
-
-      await loadData();
-    } catch {
-      alert(
-        "Bir hata oluştu."
-      );
+        credentials: "include",
+      });
+    } finally {
+      window.location.href = "/admin/login";
     }
-  }
-
-  async function deleteAdvertisement(
-    id: string
-  ) {
-    if (
-      !confirm(
-        "Bu reklamı silmek istediğinizden emin misiniz?"
-      )
-    ) {
-      return;
-    }
-
-    try {
-      const response = await fetch(
-        "/api/admin/advertisements",
-        {
-          method: "DELETE",
-          headers: {
-            "Content-Type":
-              "application/json",
-          },
-          body: JSON.stringify({
-            id,
-          }),
-        }
-      );
-
-      if (!response.ok) {
-        alert(
-          "Reklam silinemedi."
-        );
-        return;
-      }
-
-      await loadData();
-    } catch {
-      alert(
-        "Bir hata oluştu."
-      );
-    }
-  }
-
-  function formatPrice(
-    price: number
-  ) {
-    return new Intl.NumberFormat(
-      "tr-TR",
-      {
-        style: "currency",
-        currency: "TRY",
-        maximumFractionDigits: 0,
-      }
-    ).format(price);
-  }
-
-  if (checkingAuth) {
-    return (
-      <main className="admin-page">
-        <div className="admin-container">
-          <h1>Yükleniyor...</h1>
-        </div>
-      </main>
-    );
-  }
-
-  if (!authenticated) {
-    return (
-      <main className="admin-page">
-        <div className="admin-login-box">
-          <span className="eyebrow">
-            KAZANIX
-          </span>
-
-          <h1>
-            Yönetim Paneli
-          </h1>
-
-          <p>
-            Bu alan yalnızca yetkili
-            yönetici içindir.
-          </p>
-
-          <form onSubmit={login}>
-            <input
-              type="password"
-              value={password}
-              onChange={(event) =>
-                setPassword(
-                  event.target.value
-                )
-              }
-              placeholder="Admin şifresi"
-              required
-            />
-
-            {loginError && (
-              <p className="login-error">
-                {loginError}
-              </p>
-            )}
-
-            <button type="submit">
-              Giriş Yap
-            </button>
-          </form>
-        </div>
-      </main>
-    );
-  }
-
-  if (loading) {
-    return (
-      <main className="admin-page">
-        <div className="admin-container">
-          <h1>
-            Veriler yükleniyor...
-          </h1>
-        </div>
-      </main>
-    );
   }
 
   return (
-    <main className="admin-page">
-      <div className="admin-container">
+    <main className="admin-shell">
 
-        <div className="admin-header">
-          <div>
-            <span className="eyebrow">
-              YÖNETİM PANELİ
-            </span>
+      <aside className="admin-sidebar">
 
-            <h1>
-              Kazanix Yönetim Paneli
-            </h1>
+        <div className="sidebar-brand">
+          <Link href="/">
+            KAZANIX
+          </Link>
 
-            <p>
-              Reklamları ve platform
-              istatistiklerini buradan
-              yönetebilirsiniz.
-            </p>
-          </div>
-
-          <div className="admin-header-actions">
-            <button
-              onClick={loadData}
-              className="refresh-button"
-            >
-              Yenile
-            </button>
-
-            <button
-              onClick={logout}
-              className="logout-button"
-            >
-              Çıkış Yap
-            </button>
-          </div>
+          <span>ADMIN</span>
         </div>
 
-        {statistics && (
-          <section className="statistics-grid">
+        <nav className="admin-nav">
 
-            <article className="stat-card">
-              <p>Toplam Reklam</p>
-              <strong>
-                {statistics.total}
-              </strong>
-            </article>
+          <div className="nav-section">
+            Y�NETIM
+          </div>
 
-            <article className="stat-card">
-              <p>Bekleyen</p>
-              <strong>
-                {statistics.pending}
-              </strong>
-            </article>
+          {menu.slice(0, 7).map((item, index) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={
+                index === 0
+                  ? "admin-nav-link active"
+                  : "admin-nav-link"
+              }
+            >
+              <span className="nav-icon">
+                {item.icon}
+              </span>
 
-            <article className="stat-card">
-              <p>Aktif Reklam</p>
-              <strong>
-                {statistics.approved}
-              </strong>
-            </article>
-
-            <article className="stat-card">
-              <p>Reddedilen</p>
-              <strong>
-                {statistics.rejected}
-              </strong>
-            </article>
-
-            <article className="stat-card">
-              <p>Süresi Dolan</p>
-              <strong>
-                {statistics.expired}
-              </strong>
-            </article>
-
-            <article className="stat-card">
-              <p>Aktif Reklam Geliri</p>
-              <strong>
-                {formatPrice(
-                  statistics.revenue
-                )}
-              </strong>
-            </article>
-
-          </section>
-        )}
-
-        {statistics && (
-          <section className="top-ads-section">
-
-            <div className="section-heading">
               <span>
-                ÖNE ÇIKAN REKLAMLAR
+                {item.title}
+              </span>
+            </Link>
+          ))}
+
+          <div className="nav-section secondary">
+            SISTEM
+          </div>
+
+          {menu.slice(7).map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className="admin-nav-link"
+            >
+              <span className="nav-icon">
+                {item.icon}
+              </span>
+
+              <span>
+                {item.title}
+              </span>
+            </Link>
+          ))}
+
+        </nav>
+
+        <div className="sidebar-bottom">
+
+          <Link
+            href="/"
+            className="site-link"
+          >
+            ← Siteye d�n
+          </Link>
+
+          <button
+            onClick={handleLogout}
+            className="logout-button"
+          >
+            <span>↪</span>
+            �ikis Yap
+          </button>
+
+        </div>
+
+      </aside>
+
+      <section className="admin-main">
+
+        <header className="admin-header">
+
+          <div>
+            <div className="breadcrumb">
+              KAZANIX / ADMIN
+            </div>
+
+            <h1>
+              Genel Bakis
+            </h1>
+          </div>
+
+          <div className="admin-user">
+
+            <div className="user-info">
+              <strong>
+                Y�netici
+              </strong>
+
+              <span>
+                Administrator
+              </span>
+            </div>
+
+            <div className="avatar">
+              A
+            </div>
+
+          </div>
+
+        </header>
+
+        <div className="admin-content">
+
+          <div className="welcome">
+
+            <div>
+              <span className="eyebrow">
+                Y�NETIM MERKEZI
               </span>
 
               <h2>
-                En yüksek paketli reklamlar
+                G�naydin, Y�netici.
               </h2>
+
+              <p>
+                Kazanix reklam platformunun
+                genel durumunu buradan y�netin.
+              </p>
             </div>
 
-            <div className="top-ad-list">
+            <Link
+              href="/admin"
+              className="primary-action"
+            >
+              Reklamlari Y�net
+              <span>→</span>
+            </Link>
 
-              {statistics
-                .topAdvertisements
-                .length === 0 ? (
-                <p>
-                  Henüz reklam bulunmuyor.
-                </p>
-              ) : (
-                statistics
-                  .topAdvertisements
-                  .map(
-                    (ad, index) => (
-                      <article
-                        className="top-ad-item"
-                        key={ad.id}
-                      >
-                        <div className="top-ad-rank">
-                          #{index + 1}
-                        </div>
-
-                        <div className="top-ad-info">
-                          <strong>
-                            {ad.company}
-                          </strong>
-
-                          <span>
-                            {ad.title}
-                          </span>
-                        </div>
-
-                        <div className="top-ad-package">
-                          <span>
-                            {ad.package}
-                          </span>
-
-                          <strong>
-                            {formatPrice(
-                              ad.packagePrice
-                            )}
-                          </strong>
-                        </div>
-                      </article>
-                    )
-                  )
-              )}
-
-            </div>
-
-          </section>
-        )}
-
-        <section className="advertisements-section">
-
-          <div className="section-heading">
-            <span>
-              REKLAM YÖNETİMİ
-            </span>
-
-            <h2>
-              Tüm Reklamlar
-            </h2>
           </div>
 
-          {advertisements.length === 0 ? (
-            <div className="empty-state">
-              Henüz reklam bulunmuyor.
-            </div>
-          ) : (
-            <div className="admin-table-wrapper">
+          <div className="stats-grid">
 
-              <table className="admin-table">
+            {stats.map((stat) => (
+              <div
+                key={stat.label}
+                className="stat-card"
+              >
+                <div className="stat-top">
+                  <span>
+                    {stat.label}
+                  </span>
 
-                <thead>
-                  <tr>
-                    <th>Firma</th>
-                    <th>Reklam</th>
-                    <th>Paket</th>
-                    <th>Fiyat</th>
-                    <th>Durum</th>
-                    <th>İşlemler</th>
-                  </tr>
-                </thead>
+                  <span className="stat-dot" />
+                </div>
 
-                <tbody>
+                <strong>
+                  {stat.value}
+                </strong>
 
-                  {advertisements.map(
-                    (ad) => (
-                      <tr key={ad.id}>
+                <p>
+                  {stat.detail}
+                </p>
+              </div>
+            ))}
 
-                        <td>
-                          <strong>
-                            {ad.company}
-                          </strong>
+          </div>
 
-                          <br />
+          <div className="dashboard-grid">
 
-                          <small>
-                            {ad.email}
-                          </small>
-                        </td>
+            <div className="panel-card">
 
-                        <td>
-                          {ad.title}
-                        </td>
+              <div className="panel-header">
+                <div>
+                  <span className="eyebrow">
+                    AKTIVITELER
+                  </span>
 
-                        <td>
-                          {ad.package}
-                        </td>
+                  <h3>
+                    Son aktiviteler
+                  </h3>
+                </div>
 
-                        <td>
-                          {formatPrice(
-                            ad.packagePrice
-                          )}
-                        </td>
+                <Link href="/admin/notifications">
+                  T�m�n� g�r →
+                </Link>
+              </div>
 
-                        <td>
-                          <span
-                            className={
-                              "status-badge status-" +
-                              ad.status.toLowerCase()
-                            }
-                          >
-                            {ad.status}
-                          </span>
-                        </td>
+              <div className="empty-state">
+                <div className="empty-icon">
+                  ◌
+                </div>
 
-                        <td>
+                <strong>
+                  Hen�z aktivite yok
+                </strong>
 
-                          <div className="admin-actions">
-
-                            {ad.status !==
-                              "APPROVED" && (
-                              <button
-                                onClick={() =>
-                                  updateStatus(
-                                    ad.id,
-                                    "APPROVED"
-                                  )
-                                }
-                              >
-                                Onayla
-                              </button>
-                            )}
-
-                            {ad.status !==
-                              "REJECTED" && (
-                              <button
-                                onClick={() =>
-                                  updateStatus(
-                                    ad.id,
-                                    "REJECTED"
-                                  )
-                                }
-                              >
-                                Reddet
-                              </button>
-                            )}
-
-                            <button
-                              className="delete-button"
-                              onClick={() =>
-                                deleteAdvertisement(
-                                  ad.id
-                                )
-                              }
-                            >
-                              Sil
-                            </button>
-
-                          </div>
-
-                        </td>
-
-                      </tr>
-                    )
-                  )}
-
-                </tbody>
-
-              </table>
+                <p>
+                  Platformdaki yeni islemler
+                  burada g�r�necek.
+                </p>
+              </div>
 
             </div>
-          )}
 
-        </section>
+            <div className="panel-card">
 
-      </div>
+              <div className="panel-header">
+                <div>
+                  <span className="eyebrow">
+                    HIZLI ERI�?IM
+                  </span>
+
+                  <h3>
+                    Y�netim
+                  </h3>
+                </div>
+              </div>
+
+              <div className="quick-actions">
+
+                <Link href="/admin">
+                  <span>▣</span>
+                  <div>
+                    <strong>
+                      Reklamlar
+                    </strong>
+                    <small>
+                      Reklamlari incele ve y�net
+                    </small>
+                  </div>
+                  <b>→</b>
+                </Link>
+
+                <Link href="/admin/advertisers">
+                  <span>○</span>
+                  <div>
+                    <strong>
+                      Reklam Verenler
+                    </strong>
+                    <small>
+                      Isletme hesaplarini y�net
+                    </small>
+                  </div>
+                  <b>→</b>
+                </Link>
+
+                <Link href="/admin/payments">
+                  <span>₺</span>
+                  <div>
+                    <strong>
+                      �demeler
+                    </strong>
+                    <small>
+                      �deme islemlerini g�r�nt�le
+                    </small>
+                  </div>
+                  <b>→</b>
+                </Link>
+
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+      <style jsx global>{`
+
+        * {
+          box-sizing: border-box;
+        }
+
+        html,
+        body {
+          margin: 0;
+          padding: 0;
+          min-height: 100%;
+        }
+
+        body {
+          background: #f5f5f7;
+          color: #1d1d1f;
+          font-family:
+            -apple-system,
+            BlinkMacSystemFont,
+            "SF Pro Display",
+            "SF Pro Text",
+            "Helvetica Neue",
+            Arial,
+            sans-serif;
+          -webkit-font-smoothing: antialiased;
+        }
+
+        a {
+          color: inherit;
+          text-decoration: none;
+        }
+
+        button {
+          font: inherit;
+        }
+
+        .admin-shell {
+          min-height: 100vh;
+          display: flex;
+          background: #f5f5f7;
+        }
+
+        .admin-sidebar {
+          width: 248px;
+          min-height: 100vh;
+          position: fixed;
+          left: 0;
+          top: 0;
+          bottom: 0;
+          display: flex;
+          flex-direction: column;
+          padding: 28px 16px 20px;
+          background: rgba(255,255,255,.86);
+          border-right: 1px solid rgba(0,0,0,.07);
+          backdrop-filter: blur(24px);
+        }
+
+        .sidebar-brand {
+          padding: 0 12px;
+          margin-bottom: 38px;
+          display: flex;
+          align-items: baseline;
+          gap: 8px;
+        }
+
+        .sidebar-brand a {
+          font-size: 20px;
+          font-weight: 700;
+          letter-spacing: -0.8px;
+        }
+
+        .sidebar-brand span {
+          font-size: 9px;
+          font-weight: 700;
+          letter-spacing: 1px;
+          color: #86868b;
+        }
+
+        .admin-nav {
+          display: flex;
+          flex-direction: column;
+          gap: 3px;
+        }
+
+        .nav-section {
+          margin: 0 12px 9px;
+          padding-top: 2px;
+          font-size: 9px;
+          font-weight: 700;
+          letter-spacing: 1.3px;
+          color: #a1a1a6;
+        }
+
+        .nav-section.secondary {
+          margin-top: 27px;
+        }
+
+        .admin-nav-link {
+          min-height: 42px;
+          padding: 0 12px;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          border-radius: 10px;
+          color: #6e6e73;
+          font-size: 13px;
+          transition: .18s ease;
+        }
+
+        .admin-nav-link:hover {
+          background: #f5f5f7;
+          color: #1d1d1f;
+        }
+
+        .admin-nav-link.active {
+          background: #1d1d1f;
+          color: #fff;
+        }
+
+        .nav-icon {
+          width: 19px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 15px;
+        }
+
+        .sidebar-bottom {
+          margin-top: auto;
+          display: flex;
+          flex-direction: column;
+          gap: 5px;
+        }
+
+        .site-link,
+        .logout-button {
+          width: 100%;
+          min-height: 42px;
+          padding: 0 12px;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          border-radius: 10px;
+          border: 0;
+          background: transparent;
+          color: #6e6e73;
+          font-size: 13px;
+          text-align: left;
+          cursor: pointer;
+        }
+
+        .site-link:hover,
+        .logout-button:hover {
+          background: #f5f5f7;
+          color: #1d1d1f;
+        }
+
+        .admin-main {
+          width: calc(100% - 248px);
+          margin-left: 248px;
+          min-height: 100vh;
+        }
+
+        .admin-header {
+          height: 94px;
+          padding: 0 48px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          border-bottom: 1px solid rgba(0,0,0,.06);
+          background: rgba(245,245,247,.72);
+          backdrop-filter: blur(20px);
+        }
+
+        .breadcrumb {
+          margin-bottom: 6px;
+          font-size: 9px;
+          font-weight: 700;
+          letter-spacing: 1.2px;
+          color: #a1a1a6;
+        }
+
+        .admin-header h1 {
+          margin: 0;
+          font-size: 25px;
+          letter-spacing: -1px;
+        }
+
+        .admin-user {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+        }
+
+        .user-info {
+          display: flex;
+          flex-direction: column;
+          align-items: flex-end;
+          gap: 3px;
+        }
+
+        .user-info strong {
+          font-size: 13px;
+        }
+
+        .user-info span {
+          font-size: 11px;
+          color: #86868b;
+        }
+
+        .avatar {
+          width: 40px;
+          height: 40px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: 50%;
+          background: #1d1d1f;
+          color: #fff;
+          font-size: 13px;
+          font-weight: 600;
+        }
+
+        .admin-content {
+          max-width: 1500px;
+          margin: 0 auto;
+          padding: 46px 48px 70px;
+        }
+
+        .welcome {
+          display: flex;
+          align-items: flex-end;
+          justify-content: space-between;
+          gap: 30px;
+          margin-bottom: 34px;
+        }
+
+        .eyebrow {
+          display: block;
+          margin-bottom: 9px;
+          font-size: 9px;
+          font-weight: 700;
+          letter-spacing: 1.4px;
+          color: #a1a1a6;
+        }
+
+        .welcome h2 {
+          margin: 0;
+          font-size: 34px;
+          letter-spacing: -1.7px;
+        }
+
+        .welcome p {
+          margin: 9px 0 0;
+          color: #86868b;
+          font-size: 14px;
+        }
+
+        .primary-action {
+          height: 46px;
+          padding: 0 18px;
+          display: inline-flex;
+          align-items: center;
+          gap: 15px;
+          border-radius: 12px;
+          background: #1d1d1f;
+          color: #fff;
+          font-size: 13px;
+          font-weight: 600;
+          transition: .18s ease;
+        }
+
+        .primary-action:hover {
+          background: #000;
+          transform: translateY(-1px);
+        }
+
+        .stats-grid {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 15px;
+          margin-bottom: 15px;
+        }
+
+        .stat-card {
+          padding: 24px;
+          min-height: 150px;
+          border-radius: 18px;
+          background: rgba(255,255,255,.92);
+          border: 1px solid rgba(0,0,0,.06);
+          box-shadow:
+            0 10px 30px rgba(0,0,0,.025);
+        }
+
+        .stat-top {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          color: #86868b;
+          font-size: 12px;
+        }
+
+        .stat-dot {
+          width: 7px;
+          height: 7px;
+          border-radius: 50%;
+          background: #d2d2d7;
+        }
+
+        .stat-card > strong {
+          display: block;
+          margin-top: 18px;
+          font-size: 31px;
+          letter-spacing: -1.5px;
+        }
+
+        .stat-card p {
+          margin: 5px 0 0;
+          color: #a1a1a6;
+          font-size: 11px;
+        }
+
+        .dashboard-grid {
+          display: grid;
+          grid-template-columns: 1.35fr 1fr;
+          gap: 15px;
+        }
+
+        .panel-card {
+          min-height: 370px;
+          padding: 26px;
+          border-radius: 18px;
+          background: rgba(255,255,255,.92);
+          border: 1px solid rgba(0,0,0,.06);
+          box-shadow:
+            0 10px 30px rgba(0,0,0,.025);
+        }
+
+        .panel-header {
+          display: flex;
+          align-items: flex-start;
+          justify-content: space-between;
+        }
+
+        .panel-header h3 {
+          margin: 0;
+          font-size: 18px;
+          letter-spacing: -.5px;
+        }
+
+        .panel-header > a {
+          color: #6e6e73;
+          font-size: 11px;
+        }
+
+        .panel-header > a:hover {
+          color: #1d1d1f;
+        }
+
+        .empty-state {
+          min-height: 260px;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          text-align: center;
+        }
+
+        .empty-icon {
+          width: 44px;
+          height: 44px;
+          margin-bottom: 15px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: 50%;
+          background: #f5f5f7;
+          color: #a1a1a6;
+          font-size: 20px;
+        }
+
+        .empty-state strong {
+          font-size: 13px;
+        }
+
+        .empty-state p {
+          max-width: 250px;
+          margin: 7px 0 0;
+          color: #a1a1a6;
+          font-size: 11px;
+          line-height: 1.5;
+        }
+
+        .quick-actions {
+          margin-top: 22px;
+          display: flex;
+          flex-direction: column;
+        }
+
+        .quick-actions a {
+          min-height: 76px;
+          display: grid;
+          grid-template-columns: 36px 1fr 20px;
+          align-items: center;
+          gap: 13px;
+          border-top: 1px solid #f0f0f2;
+          transition: .18s ease;
+        }
+
+        .quick-actions a:first-child {
+          border-top: 0;
+        }
+
+        .quick-actions a > span {
+          width: 36px;
+          height: 36px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: 10px;
+          background: #f5f5f7;
+          font-size: 14px;
+        }
+
+        .quick-actions a div {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+        }
+
+        .quick-actions strong {
+          font-size: 13px;
+        }
+
+        .quick-actions small {
+          color: #a1a1a6;
+          font-size: 10px;
+        }
+
+        .quick-actions b {
+          color: #a1a1a6;
+          font-size: 15px;
+          font-weight: 400;
+        }
+
+        .quick-actions a:hover b {
+          color: #1d1d1f;
+        }
+
+        @media (max-width: 1100px) {
+
+          .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+          }
+
+          .dashboard-grid {
+            grid-template-columns: 1fr;
+          }
+
+        }
+
+        @media (max-width: 800px) {
+
+          .admin-sidebar {
+            width: 72px;
+            padding-left: 10px;
+            padding-right: 10px;
+          }
+
+          .sidebar-brand {
+            justify-content: center;
+            padding: 0;
+          }
+
+          .sidebar-brand a {
+            font-size: 0;
+          }
+
+          .sidebar-brand a::after {
+            content: "K";
+            font-size: 20px;
+          }
+
+          .sidebar-brand span,
+          .admin-nav-link span:last-child,
+          .nav-section,
+          .site-link,
+          .logout-button {
+            font-size: 0;
+          }
+
+          .admin-nav-link,
+          .site-link,
+          .logout-button {
+            justify-content: center;
+            padding: 0;
+          }
+
+          .nav-icon {
+            font-size: 17px;
+          }
+
+          .admin-main {
+            width: calc(100% - 72px);
+            margin-left: 72px;
+          }
+
+          .admin-header {
+            padding: 0 24px;
+          }
+
+          .admin-content {
+            padding: 30px 24px 50px;
+          }
+
+        }
+
+        @media (max-width: 600px) {
+
+          .admin-header {
+            height: 78px;
+          }
+
+          .admin-header h1 {
+            font-size: 20px;
+          }
+
+          .user-info {
+            display: none;
+          }
+
+          .welcome {
+            flex-direction: column;
+            align-items: flex-start;
+          }
+
+          .welcome h2 {
+            font-size: 29px;
+          }
+
+          .stats-grid {
+            grid-template-columns: 1fr;
+          }
+
+          .admin-content {
+            padding-left: 16px;
+            padding-right: 16px;
+          }
+
+          .admin-header {
+            padding-left: 16px;
+            padding-right: 16px;
+          }
+
+          .panel-card {
+            padding: 20px;
+          }
+
+        }
+
+      `}</style>
+
     </main>
   );
 }

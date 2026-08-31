@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState } from "react";
 
@@ -33,7 +33,7 @@ export default function Advertisements() {
   }, []);
 
   if (loading) {
-    return <p className="ads-loading">Reklamlar yukleniyor...</p>;
+    return <p className="ads-loading">Reklamlar yükleniyor...</p>;
   }
 
   if (advertisements.length === 0) {

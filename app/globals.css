@@ -2481,3 +2481,635 @@ footer {
     flex: 1;
   }
 }
+
+
+/* KAZANIX REKLAM VEREN PANEL */
+
+.advertiser-panel {
+  min-height: 100vh;
+  background: #07111f;
+  color: #f8fafc;
+  padding: 40px 20px 80px;
+}
+
+.advertiser-container {
+  width: min(1180px, 100%);
+  margin: 0 auto;
+}
+
+.panel-loading,
+.empty-panel,
+.panel-card {
+  background: #0d1b2a;
+  border: 1px solid #20324a;
+  border-radius: 20px;
+  padding: 40px;
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 24px;
+  margin-bottom: 28px;
+}
+
+.panel-header h1 {
+  margin: 8px 0;
+  font-size: clamp(30px, 5vw, 48px);
+}
+
+.panel-header p {
+  margin: 0;
+  color: #94a3b8;
+}
+
+.panel-eyebrow {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  color: #60a5fa;
+}
+
+.panel-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 30px;
+}
+
+.panel-nav a,
+.panel-secondary {
+  border: 1px solid #263b55;
+  background: #0d1b2a;
+  color: #dbeafe;
+  border-radius: 10px;
+  padding: 11px 16px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.panel-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  background: #2563eb;
+  color: white;
+  border-radius: 10px;
+  padding: 12px 18px;
+  font-weight: 800;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.panel-button:disabled {
+  opacity: .6;
+  cursor: wait;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 35px;
+}
+
+.stat-card {
+  background: #0d1b2a;
+  border: 1px solid #20324a;
+  border-radius: 18px;
+  padding: 24px;
+}
+
+.stat-card span {
+  display: block;
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  margin-bottom: 12px;
+}
+
+.stat-card strong {
+  display: block;
+  font-size: 30px;
+}
+
+.panel-section {
+  background: #0d1b2a;
+  border: 1px solid #20324a;
+  border-radius: 20px;
+  padding: 28px;
+}
+
+.section-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 22px;
+}
+
+.ad-list {
+  display: grid;
+  gap: 14px;
+}
+
+.ad-list-card {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 24px;
+  border: 1px solid #20324a;
+  background: #0d1b2a;
+  border-radius: 16px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.ad-list-card h3 {
+  margin: 7px 0;
+  font-size: 21px;
+}
+
+.ad-list-card p {
+  margin: 0;
+  color: #94a3b8;
+}
+
+.ad-list-meta {
+  min-width: 140px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.status {
+  display: inline-block;
+  width: fit-content;
+  padding: 5px 9px;
+  border-radius: 999px;
+  background: #263b55;
+  color: #dbeafe;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.advertiser-form {
+  max-width: 760px;
+  background: #0d1b2a;
+  border: 1px solid #20324a;
+  border-radius: 20px;
+  padding: 30px;
+  display: grid;
+  gap: 20px;
+}
+
+.advertiser-form label {
+  display: grid;
+  gap: 8px;
+  color: #cbd5e1;
+  font-weight: 700;
+}
+
+.advertiser-form input,
+.advertiser-form textarea,
+.advertiser-form select {
+  width: 100%;
+  border: 1px solid #29415d;
+  background: #07111f;
+  color: #f8fafc;
+  border-radius: 10px;
+  padding: 13px 14px;
+  font: inherit;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.form-error {
+  background: #3a1717;
+  border: 1px solid #7f1d1d;
+  color: #fca5a5;
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+
+.form-message {
+  background: #12351f;
+  border: 1px solid #166534;
+  color: #86efac;
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+
+.detail-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.delete-button {
+  border: 1px solid #7f1d1d;
+  background: #3a1717;
+  color: #fca5a5;
+  border-radius: 10px;
+  padding: 12px 18px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+@media (max-width: 850px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .advertiser-panel {
+    padding: 20px 14px 60px;
+  }
+
+  .panel-header {
+    flex-direction: column;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .section-title {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .ad-list-card {
+    flex-direction: column;
+  }
+
+  .ad-list-meta {
+    align-items: flex-start;
+  }
+}
+
+/* =========================================================
+   KAZANIX APPLE DARK USER THEME
+   Reklam veren / kullanici arayuzu
+   Admin paneline uygulanmaz.
+   ========================================================= */
+
+.kazanix-user-dark {
+  min-height: 100vh;
+  background:
+    radial-gradient(
+      circle at 50% -10%,
+      rgba(255,255,255,.08),
+      transparent 40%
+    ),
+    #050505;
+  color: #f5f5f7;
+  font-family:
+    -apple-system,
+    BlinkMacSystemFont,
+    "SF Pro Display",
+    "SF Pro Text",
+    Inter,
+    Arial,
+    sans-serif;
+}
+
+.kazanix-user-dark input,
+.kazanix-user-dark textarea,
+.kazanix-user-dark select {
+  background: rgba(255,255,255,.06);
+  color: #f5f5f7;
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 14px;
+}
+
+.kazanix-user-dark input:focus,
+.kazanix-user-dark textarea:focus,
+.kazanix-user-dark select:focus {
+  outline: none;
+  border-color: rgba(255,255,255,.35);
+  box-shadow: 0 0 0 4px rgba(255,255,255,.06);
+}
+
+.kazanix-user-dark .apple-card {
+  background: rgba(255,255,255,.055);
+  border: 1px solid rgba(255,255,255,.10);
+  border-radius: 24px;
+  box-shadow:
+    0 25px 80px rgba(0,0,0,.45),
+    inset 0 1px 0 rgba(255,255,255,.04);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+}
+
+.kazanix-user-dark .apple-primary {
+  background: #f5f5f7;
+  color: #050505;
+  border: none;
+  border-radius: 14px;
+  font-weight: 600;
+}
+
+.kazanix-user-dark .apple-primary:hover {
+  opacity: .88;
+}
+
+.kazanix-user-dark .apple-muted {
+  color: #98989d;
+}
+
+.kazanix-user-dark ::selection {
+  background: rgba(255,255,255,.20);
+}
+
+/* ==========================================================
+   KAZANIX APPLE DARK PREMIUM V2
+   Kullanici / reklam veren arayuzu
+   Admin paneli bu tema kapsaminda degildir.
+   ========================================================== */
+
+:root {
+  --kx-bg: #050505;
+  --kx-bg-soft: #0a0a0c;
+  --kx-surface: rgba(255,255,255,.055);
+  --kx-surface-strong: rgba(255,255,255,.085);
+  --kx-border: rgba(255,255,255,.11);
+  --kx-border-hover: rgba(255,255,255,.22);
+
+  --kx-text: #f5f5f7;
+  --kx-text-soft: #a1a1a6;
+  --kx-text-muted: #6e6e73;
+
+  --kx-blue: #2997ff;
+  --kx-purple: #bf5af2;
+  --kx-cyan: #64d2ff;
+  --kx-green: #30d158;
+  --kx-orange: #ff9f0a;
+  --kx-red: #ff453a;
+
+  --kx-radius-sm: 14px;
+  --kx-radius-md: 20px;
+  --kx-radius-lg: 28px;
+
+  --kx-shadow:
+    0 25px 80px rgba(0,0,0,.42);
+
+  --kx-font:
+    -apple-system,
+    BlinkMacSystemFont,
+    "SF Pro Display",
+    "SF Pro Text",
+    Inter,
+    Helvetica,
+    Arial,
+    sans-serif;
+}
+
+/* Ana kullanici arayuzu */
+body {
+  font-family: var(--kx-font);
+}
+
+/* Sayfa zemini */
+body:not(:has(.kazanix-admin-page)) {
+  background:
+    radial-gradient(
+      circle at 15% 0%,
+      rgba(41,151,255,.08),
+      transparent 30%
+    ),
+    radial-gradient(
+      circle at 85% 10%,
+      rgba(191,90,242,.07),
+      transparent 30%
+    ),
+    var(--kx-bg);
+  color: var(--kx-text);
+}
+
+/* Linkler */
+body:not(:has(.kazanix-admin-page)) a {
+  transition:
+    color .2s ease,
+    opacity .2s ease,
+    transform .2s ease;
+}
+
+/* Genel buton */
+body:not(:has(.kazanix-admin-page)) button {
+  font-family: var(--kx-font);
+  transition:
+    transform .2s ease,
+    opacity .2s ease,
+    box-shadow .2s ease,
+    border-color .2s ease;
+}
+
+body:not(:has(.kazanix-admin-page)) button:hover {
+  transform: translateY(-1px);
+}
+
+/* Input */
+body:not(:has(.kazanix-admin-page)) input,
+body:not(:has(.kazanix-admin-page)) textarea,
+body:not(:has(.kazanix-admin-page)) select {
+  font-family: var(--kx-font);
+  background: rgba(255,255,255,.055);
+  color: var(--kx-text);
+  border: 1px solid var(--kx-border);
+  border-radius: var(--kx-radius-sm);
+  transition:
+    border-color .2s ease,
+    background .2s ease,
+    box-shadow .2s ease;
+}
+
+body:not(:has(.kazanix-admin-page)) input:hover,
+body:not(:has(.kazanix-admin-page)) textarea:hover,
+body:not(:has(.kazanix-admin-page)) select:hover {
+  border-color: var(--kx-border-hover);
+  background: rgba(255,255,255,.07);
+}
+
+body:not(:has(.kazanix-admin-page)) input:focus,
+body:not(:has(.kazanix-admin-page)) textarea:focus,
+body:not(:has(.kazanix-admin-page)) select:focus {
+  outline: none;
+  border-color: rgba(41,151,255,.7);
+  box-shadow:
+    0 0 0 4px rgba(41,151,255,.10),
+    0 0 30px rgba(41,151,255,.08);
+}
+
+/* Premium kart */
+.kazanix-card,
+.apple-card,
+.kx-card {
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255,255,255,.085),
+      rgba(255,255,255,.035)
+    );
+  border: 1px solid var(--kx-border);
+  border-radius: var(--kx-radius-lg);
+  box-shadow: var(--kx-shadow);
+  backdrop-filter: blur(26px);
+  -webkit-backdrop-filter: blur(26px);
+  transition:
+    transform .25s ease,
+    border-color .25s ease,
+    box-shadow .25s ease;
+}
+
+.kazanix-card:hover,
+.apple-card:hover,
+.kx-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--kx-border-hover);
+  box-shadow:
+    0 30px 90px rgba(0,0,0,.52),
+    0 0 45px rgba(41,151,255,.055);
+}
+
+/* Premium buton */
+.kazanix-primary,
+.apple-primary,
+.kx-primary {
+  background: linear-gradient(
+    135deg,
+    #ffffff,
+    #dcdce1
+  );
+  color: #050505;
+  border: 0;
+  border-radius: 15px;
+  font-weight: 650;
+  box-shadow:
+    0 10px 30px rgba(255,255,255,.08);
+}
+
+.kazanix-primary:hover,
+.apple-primary:hover,
+.kx-primary:hover {
+  box-shadow:
+    0 14px 38px rgba(255,255,255,.14);
+}
+
+/* Mavi vurgu */
+.kazanix-accent,
+.kx-accent {
+  color: var(--kx-blue);
+}
+
+/* Mor vurgu */
+.kazanix-purple {
+  color: var(--kx-purple);
+}
+
+/* Gradient baslik */
+.kazanix-gradient-text,
+.kx-gradient-text {
+  background:
+    linear-gradient(
+      100deg,
+      #ffffff 0%,
+      #64d2ff 42%,
+      #bf5af2 100%
+    );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Badge */
+.kazanix-badge,
+.kx-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  background: rgba(41,151,255,.10);
+  border: 1px solid rgba(41,151,255,.20);
+  color: #64d2ff;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* Basari */
+.kazanix-success {
+  color: var(--kx-green);
+}
+
+/* Uyari */
+.kazanix-warning {
+  color: var(--kx-orange);
+}
+
+/* Hata */
+.kazanix-error {
+  color: var(--kx-red);
+}
+
+/* Ikincil metin */
+.kazanix-muted,
+.kx-muted {
+  color: var(--kx-text-soft);
+}
+
+/* Divider */
+.kazanix-divider,
+.kx-divider {
+  height: 1px;
+  background: rgba(255,255,255,.09);
+}
+
+/* Scrollbar */
+body:not(:has(.kazanix-admin-page)) ::-webkit-scrollbar {
+  width: 9px;
+}
+
+body:not(:has(.kazanix-admin-page)) ::-webkit-scrollbar-track {
+  background: #050505;
+}
+
+body:not(:has(.kazanix-admin-page)) ::-webkit-scrollbar-thumb {
+  background: #2a2a2c;
+  border-radius: 999px;
+}
+
+body:not(:has(.kazanix-admin-page)) ::-webkit-scrollbar-thumb:hover {
+  background: #444446;
+}
+
+/* Secim */
+body:not(:has(.kazanix-admin-page)) ::selection {
+  background: rgba(41,151,255,.28);
+  color: white;
+}
+
+/* Mobil */
+@media (max-width: 768px) {
+
+  .kazanix-card,
+  .apple-card,
+  .kx-card {
+    border-radius: 22px;
+  }
+
+  body:not(:has(.kazanix-admin-page)) {
+    background:
+      radial-gradient(
+        circle at 50% 0%,
+        rgba(41,151,255,.07),
+        transparent 35%
+      ),
+      #050505;
+  }
+}

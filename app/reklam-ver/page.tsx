@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 import Link from "next/link";
@@ -73,7 +73,7 @@ export default function ReklamVerPage() {
   };
 
   return (
-    <main className="form-page">
+    <main className="kazanix-user-dark" >
       <div className="container form-container">
         <Link href="/" className="back-link">
           ← Kazanix'e Dön

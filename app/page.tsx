@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 import Advertisements from "./advertisements";
@@ -27,7 +27,7 @@ export default function Home() {
   };
 
   return (
-    <main>
+    <main className="kazanix-user-dark">
       <nav className="navbar">
         <div className="container nav-inner">
           <a href="#" className="logo">
@@ -165,7 +165,7 @@ export default function Home() {
             <article className="step-card">
               <div className="step-number">01</div>
    <div className="step-icon">✦</div>
-              <h3>Reklaminizi Olusturun</h3>
+              <h3>Reklaminizi Oluşturun</h3>
               <p>
                 Markanizi, kampanyanizi ve hedef kitlenizi belirleyin.
               </p>

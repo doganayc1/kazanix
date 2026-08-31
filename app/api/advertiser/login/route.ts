@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import bcrypt from "bcrypt";
 import {
   ADVERTISER_COOKIE_NAME,
+  createAdvertiserSession,
 } from "@/lib/advertiser-auth";
 
 export async function POST(request: Request) {
@@ -17,8 +19,7 @@ export async function POST(request: Request) {
     if (!email || !password) {
       return NextResponse.json(
         {
-          error:
-            "E-posta ve sifre gereklidir.",
+          error: "E-posta ve şifre gereklidir.",
         },
         {
           status: 400,
@@ -26,22 +27,16 @@ export async function POST(request: Request) {
       );
     }
 
-    const user =
-      await prisma.user.findUnique({
-        where: {
-          email,
-        },
-      });
+    const user = await prisma.user.findUnique({
+      where: {
+        email,
+      },
+    });
 
-    if (
-      !user ||
-      user.password !== password ||
-      user.role !== "BUSINESS"
-    ) {
+    if (!user || user.role !== "BUSINESS") {
       return NextResponse.json(
         {
-          error:
-            "E-posta veya sifre hatali.",
+          error: "E-posta veya şifre hatali.",
         },
         {
           status: 401,
@@ -49,34 +44,72 @@ export async function POST(request: Request) {
       );
     }
 
-    const sessionData = {
+    let passwordValid = false;
+
+    const looksHashed =
+      user.password.startsWith("$2a$") ||
+      user.password.startsWith("$2b$") ||
+      user.password.startsWith("$2y$");
+
+    if (looksHashed) {
+      passwordValid = await bcrypt.compare(
+        password,
+        user.password
+      );
+    } else {
+      // Eski sistemdeki duz şifreleri bir kereye mahsus
+      // dogrula ve hemen bcrypt hash'e gecir.
+      passwordValid = password === user.password;
+
+      if (passwordValid) {
+        const hashed = await bcrypt.hash(password, 12);
+
+        await prisma.user.update({
+          where: {
+            id: user.id,
+          },
+          data: {
+            password: hashed,
+          },
+        });
+      }
+    }
+
+    if (!passwordValid) {
+      return NextResponse.json(
+        {
+          error: "E-posta veya şifre hatali.",
+        },
+        {
+          status: 401,
+        }
+      );
+    }
+
+    const session = createAdvertiserSession({
       id: user.id,
       email: user.email,
       name: user.name,
-    };
+      role: "BUSINESS",
+    });
 
-    const sessionValue =
-      Buffer.from(
-        JSON.stringify(sessionData)
-      ).toString("base64url");
-
-    const response =
-      NextResponse.json({
-        success: true,
-        user: sessionData,
-      });
+    const response = NextResponse.json({
+      success: true,
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+      },
+    });
 
     response.cookies.set({
       name: ADVERTISER_COOKIE_NAME,
-      value: sessionValue,
+      value: session,
       httpOnly: true,
-      secure:
-        process.env.NODE_ENV ===
-        "production",
+      secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
       path: "/",
-      maxAge:
-        60 * 60 * 24 * 7,
+      maxAge: 60 * 60 * 24 * 7,
     });
 
     return response;
@@ -85,8 +118,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json(
       {
-        error:
-          "Giris yapilamadi.",
+        error: "Giriş yapilamadi.",
       },
       {
         status: 500,

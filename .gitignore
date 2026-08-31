@@ -44,3 +44,17 @@ next-env.d.ts
 
 .vercel
 .env*
+.archive/
+.repair-backup/
+_apple_dark_backup_*/
+_character_register_backup_*/
+_encoding_register_backup_*/
+_full_fix_backup_*/
+_jsx_fix_backup_*/
+_kazanix_backup/
+_route_backup_*/
+_route_fix_backup_*/
+_security_backup_*/
+_ui_safe_backup_*/
+*.before-tracking-fix
+build-error.txt

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import bcrypt from "bcrypt";
 
 export async function POST(request: Request) {
   try {
@@ -9,14 +10,12 @@ export async function POST(request: Request) {
     const email = String(body.email || "")
       .trim()
       .toLowerCase();
-
     const password = String(body.password || "");
 
     if (!name || !email || !password) {
       return NextResponse.json(
         {
-          error:
-            "Ad, e-posta ve sifre zorunludur.",
+          error: "Ad, e-posta ve şifre zorunludur.",
         },
         {
           status: 400,
@@ -27,8 +26,7 @@ export async function POST(request: Request) {
     if (password.length < 6) {
       return NextResponse.json(
         {
-          error:
-            "Sifre en az 6 karakter olmalidir.",
+          error: "Şifre en az 6 karakter olmalıdır.",
         },
         {
           status: 400,
@@ -47,7 +45,7 @@ export async function POST(request: Request) {
       return NextResponse.json(
         {
           error:
-            "Bu e-posta zaten kayitli.",
+            "Bu e-posta adresi ile zaten bir hesap bulunmaktadır.",
         },
         {
           status: 409,
@@ -55,14 +53,18 @@ export async function POST(request: Request) {
       );
     }
 
-    const user = await prisma.user.create({
-      data: {
-        name,
-        email,
-        password,
-        role: "BUSINESS",
-      },
-    });
+    const hashedPassword =
+      await bcrypt.hash(password, 12);
+
+    const user =
+      await prisma.user.create({
+        data: {
+          name,
+          email,
+          password: hashedPassword,
+          role: "BUSINESS",
+        },
+      });
 
     return NextResponse.json(
       {
@@ -78,12 +80,12 @@ export async function POST(request: Request) {
       }
     );
   } catch (error) {
-    console.error(error);
+    console.error("Advertiser register error:", error);
 
     return NextResponse.json(
       {
         error:
-          "Kayit islemi basarisiz oldu.",
+          "Kayıt işlemi sırasında bir hata oluştu.",
       },
       {
         status: 500,

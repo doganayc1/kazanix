@@ -44,7 +44,7 @@ export default function AdvertiserPage() {
 
       if (response.status === 401) {
         window.location.href =
-          "/reklamveren/giris";
+          "/reklam-veren/giris";
         return;
       }
 
@@ -199,14 +199,14 @@ export default function AdvertiserPage() {
 
   if (loading) {
     return (
-      <main className="advertiser-page">
+      <main className="kazanix-user-dark" >
         <div className="advertiser-container">
           <h1>
             Reklamveren Paneli
           </h1>
 
           <p>
-            Reklamlariniz yukleniyor...
+            Reklamlariniz yükleniyor...
           </p>
         </div>
       </main>
@@ -214,7 +214,7 @@ export default function AdvertiserPage() {
   }
 
   return (
-    <main className="advertiser-page">
+    <main className="kazanix-user-dark" >
 
       <div className="advertiser-container">
 
@@ -226,7 +226,7 @@ export default function AdvertiserPage() {
             </span>
 
             <h1>
-              Reklamlarim
+              Reklamlarım
             </h1>
 
             <p>
@@ -341,7 +341,7 @@ export default function AdvertiserPage() {
 
               <p>
                 Ilk reklam kampanyanizi
-                olusturarak baslayin.
+                oluşturarak baslayin.
               </p>
 
               <a href="/reklam-ver">
@@ -415,7 +415,7 @@ export default function AdvertiserPage() {
 
                       <div>
                         <span>
-                          Baslangic
+                          Başlangıç
                         </span>
 
                         <strong>
@@ -453,7 +453,7 @@ export default function AdvertiserPage() {
                             )
                           }
                         >
-                          Duzenle
+                          Düzenle
                         </button>
 
                       )}
@@ -502,7 +502,7 @@ export default function AdvertiserPage() {
             </button>
 
             <h2>
-              Reklami Duzenle
+              Reklami Düzenle
             </h2>
 
             <form
@@ -564,7 +564,7 @@ export default function AdvertiserPage() {
               </label>
 
               <label>
-                Aciklama
+                Açıklama
 
                 <textarea
                   rows={5}
