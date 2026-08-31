@@ -31,7 +31,7 @@ export async function GET() {
   try {
     const now = new Date();
 
-    // Süresi dolan onaylı reklamları otomatik olarak EXPIRED yap
+    // Süresi dolan aktif reklamları EXPIRED yap
     await prisma.advertisement.updateMany({
       where: {
         status: AdvertisementStatus.APPROVED,
@@ -44,48 +44,48 @@ export async function GET() {
       },
     });
 
-    // Sadece aktif reklamları getir
-    const advertisements =
-      await prisma.advertisement.findMany({
-        where: {
-          status: AdvertisementStatus.APPROVED,
-          startsAt: {
-            lte: now,
-          },
-          expiresAt: {
-            gt: now,
-          },
+    // Aktif reklamları getir
+    const advertisements = await prisma.advertisement.findMany({
+      where: {
+        status: AdvertisementStatus.APPROVED,
+        startsAt: {
+          lte: now,
         },
-        orderBy: {
-          createdAt: "desc",
+        expiresAt: {
+          gt: now,
         },
-      });
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
 
-    // Öne çıkan reklamlar her zaman önce
-    advertisements.sort((a, b) => {
-      const priorityA =
-        packages[a.package]?.priority ?? 0;
-
-      const priorityB =
-        packages[b.package]?.priority ?? 0;
+    // ONE_CIKAN reklamlar önce
+    const sortedAdvertisements = advertisements.sort((a, b) => {
+      const priorityA = packages[a.package]?.priority ?? 0;
+      const priorityB = packages[b.package]?.priority ?? 0;
 
       if (priorityA !== priorityB) {
         return priorityB - priorityA;
       }
 
       return (
-        b.createdAt.getTime() -
-        a.createdAt.getTime()
+        new Date(b.createdAt).getTime() -
+        new Date(a.createdAt).getTime()
       );
     });
 
-    return NextResponse.json(advertisements);
+    return NextResponse.json(sortedAdvertisements);
   } catch (error) {
     console.error(error);
 
     return NextResponse.json(
-      { error: "Reklamlar alınamadı." },
-      { status: 500 }
+      {
+        error: "Reklamlar alınamadı.",
+      },
+      {
+        status: 500,
+      }
     );
   }
 }
@@ -113,8 +113,7 @@ export async function POST(request: Request) {
     ) {
       return NextResponse.json(
         {
-          error:
-            "Lütfen zorunlu alanları doldurun.",
+          error: "Lütfen zorunlu alanları doldurun.",
         },
         {
           status: 400,
@@ -122,14 +121,12 @@ export async function POST(request: Request) {
       );
     }
 
-    const selectedPlan =
-      packages[selectedPackage];
+    const selectedPlan = packages[selectedPackage];
 
     if (!selectedPlan) {
       return NextResponse.json(
         {
-          error:
-            "Geçersiz reklam paketi.",
+          error: "Geçersiz reklam paketi.",
         },
         {
           status: 400,
@@ -137,7 +134,14 @@ export async function POST(request: Request) {
       );
     }
 
-    // Reklam önce admin onayı bekler
+    const now = new Date();
+
+    const expiresAt = new Date(
+      now.getTime() +
+        selectedPlan.days * 24 * 60 * 60 * 1000
+    );
+
+    // Otomatik onay + otomatik süre
     const advertisement =
       await prisma.advertisement.create({
         data: {
@@ -148,22 +152,21 @@ export async function POST(request: Request) {
           image: image || null,
           link: link || null,
           package: selectedPackage,
-          packagePrice:
-            selectedPlan.price,
-          status:
-            AdvertisementStatus.PENDING,
+          packagePrice: selectedPlan.price,
+
+          status: AdvertisementStatus.APPROVED,
+
+          startsAt: now,
+          expiresAt,
         },
       });
 
     return NextResponse.json(
       {
-        success: true,
         advertisement,
         packageInfo: {
-          price:
-            selectedPlan.price,
-          days:
-            selectedPlan.days,
+          price: selectedPlan.price,
+          days: selectedPlan.days,
         },
       },
       {
@@ -175,8 +178,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json(
       {
-        error:
-          "Reklam oluşturulamadı.",
+        error: "Reklam oluşturulamadı.",
       },
       {
         status: 500,
