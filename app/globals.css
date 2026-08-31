@@ -1112,3 +1112,213 @@ footer {
     width: 100%;
   }
 }
+
+/* ========================================
+   KAZANIX MOBILE RESPONSIVE IMPROVEMENTS
+======================================== */
+
+@media (max-width: 768px) {
+
+  html {
+    overflow-x: hidden;
+  }
+
+  body {
+    overflow-x: hidden;
+  }
+
+  /* Genel container */
+  .container,
+  .hero-content,
+  .section-heading {
+    width: 100%;
+    max-width: 100%;
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
+  /* Header / Navigation */
+  header,
+  .header,
+  .navbar,
+  nav {
+    max-width: 100%;
+  }
+
+  /* Hero alanı */
+  .hero {
+    min-height: auto;
+    padding: 48px 0;
+  }
+
+  .hero h1 {
+    font-size: clamp(2rem, 10vw, 3.5rem);
+    line-height: 1.1;
+  }
+
+  .hero p {
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+
+  /* Butonlar */
+  .hero-actions,
+  .cta-actions,
+  .button-group {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 12px;
+  }
+
+  .hero-actions a,
+  .hero-actions button,
+  .cta-actions a,
+  .cta-actions button,
+  .button-group a,
+  .button-group button {
+    width: 100%;
+    min-height: 48px;
+    justify-content: center;
+  }
+
+  /* Reklam kartları */
+  .advertisements,
+  .ads-grid,
+  .campaigns-grid,
+  .cards-grid {
+    grid-template-columns: 1fr !important;
+    gap: 16px;
+  }
+
+  .ad-card,
+  .campaign-card,
+  .card {
+    width: 100%;
+  }
+
+  /* Bölümler */
+  section {
+    padding-top: 48px;
+    padding-bottom: 48px;
+  }
+
+  .section-heading h2 {
+    font-size: 1.8rem;
+    line-height: 1.25;
+  }
+
+  /* Nasıl çalışır kartları */
+  .steps {
+    grid-template-columns: 1fr !important;
+    gap: 16px;
+  }
+
+  /* Formlar */
+  form {
+    width: 100%;
+  }
+
+  input,
+  textarea,
+  select {
+    width: 100%;
+    font-size: 16px;
+  }
+
+  /* Reklam verme sayfası */
+  .form-grid,
+  .advertisement-form,
+  .pricing-grid,
+  .packages-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .package-card {
+    width: 100%;
+  }
+
+  /* Admin panel */
+  .admin-container,
+  .admin-panel {
+    width: 100%;
+    padding: 16px;
+  }
+
+  .admin-table-wrapper,
+  .table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  table {
+    min-width: 700px;
+  }
+
+  /* Admin aksiyon butonları */
+  .admin-actions,
+  .action-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .admin-actions button,
+  .action-buttons button {
+    width: 100%;
+  }
+
+  /* Görseller */
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+
+  /* Footer */
+  footer {
+    text-align: center;
+    padding: 32px 20px;
+  }
+}
+
+
+/* Küçük telefonlar */
+@media (max-width: 480px) {
+
+  body {
+    font-size: 15px;
+  }
+
+  .hero {
+    padding: 36px 0;
+  }
+
+  .hero h1 {
+    font-size: 2rem;
+  }
+
+  .section-heading h2 {
+    font-size: 1.55rem;
+  }
+
+  .container,
+  .hero-content,
+  .section-heading {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .ad-card,
+  .campaign-card,
+  .step-card,
+  .package-card {
+    padding: 18px;
+  }
+
+  button,
+  .button,
+  .btn {
+    min-height: 48px;
+  }
+}
