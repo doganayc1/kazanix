@@ -1,4 +1,4 @@
-﻿import { NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { ADMIN_COOKIE_NAME } from "@/lib/admin-auth";
 
 export async function POST(request: Request) {
@@ -7,14 +7,14 @@ export async function POST(request: Request) {
 
     if (!process.env.ADMIN_PASSWORD) {
       return NextResponse.json(
-        { error: "ADMIN_PASSWORD ayarlanmamis." },
+        { error: "ADMIN_PASSWORD ayarlanmamış." },
         { status: 500 }
       );
     }
 
-    if (password !== process.env.ADMIN_PASSWORD) {
+    if (!password || password !== process.env.ADMIN_PASSWORD) {
       return NextResponse.json(
-        { error: "Hatali sifre." },
+        { error: "Hatalı şifre." },
         { status: 401 }
       );
     }
@@ -36,7 +36,7 @@ export async function POST(request: Request) {
     return response;
   } catch {
     return NextResponse.json(
-      { error: "Giris yapilamadi." },
+      { error: "Giriş yapılamadı." },
       { status: 500 }
     );
   }

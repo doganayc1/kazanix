@@ -1,14 +1,13 @@
-﻿import { cookies } from "next/headers";
+export const ADMIN_COOKIE_NAME = "kazanix_admin";
 
-const COOKIE_NAME = "kazanix_admin_session";
+export function isAdminAuthenticated(
+  cookieValue?: string
+) {
+  const password = process.env.ADMIN_PASSWORD;
 
-export async function isAdminAuthenticated() {
-  const cookieStore = await cookies();
+  if (!password || !cookieValue) {
+    return false;
+  }
 
-  return (
-    cookieStore.get(COOKIE_NAME)?.value ===
-    process.env.ADMIN_PASSWORD
-  );
+  return cookieValue === password;
 }
-
-export const ADMIN_COOKIE_NAME = COOKIE_NAME;

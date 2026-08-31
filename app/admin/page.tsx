@@ -1,6 +1,9 @@
-﻿"use client";
+"use client";
 
-import { useEffect, useState } from "react";
+import {
+  useEffect,
+  useState,
+} from "react";
 
 type Advertisement = {
   id: string;
@@ -8,131 +11,305 @@ type Advertisement = {
   email: string;
   title: string;
   description: string;
-  status: string;
   package: string;
+  packagePrice: number;
+  status: string;
+  startsAt: string | null;
+  expiresAt: string | null;
+  createdAt: string;
+};
+
+type Statistics = {
+  total: number;
+  pending: number;
+  approved: number;
+  rejected: number;
+  expired: number;
+  revenue: number;
+  recentAdvertisements: number;
+  topAdvertisements: {
+    id: string;
+    company: string;
+    title: string;
+    package: string;
+    packagePrice: number;
+    status: string;
+  }[];
 };
 
 export default function AdminPage() {
-  const [password, setPassword] = useState("");
-  const [authenticated, setAuthenticated] = useState(false);
-  const [advertisements, setAdvertisements] = useState<Advertisement[]>([]);
-  const [message, setMessage] = useState("");
+  const [authenticated, setAuthenticated] =
+    useState(false);
 
-  const loadAdvertisements = async () => {
-    const response = await fetch("/api/admin/advertisements");
+  const [checkingAuth, setCheckingAuth] =
+    useState(true);
 
-    if (response.status === 401) {
-      setAuthenticated(false);
-      return;
-    }
+  const [password, setPassword] =
+    useState("");
 
-    if (response.ok) {
-      const data = await response.json();
-      setAdvertisements(data);
+  const [loginError, setLoginError] =
+    useState("");
+
+  const [
+    advertisements,
+    setAdvertisements,
+  ] = useState<Advertisement[]>([]);
+
+  const [statistics, setStatistics] =
+    useState<Statistics | null>(null);
+
+  const [loading, setLoading] =
+    useState(true);
+
+  async function loadData() {
+    try {
+      setLoading(true);
+
+      const responses =
+        await Promise.all([
+          fetch(
+            "/api/admin/advertisements"
+          ),
+          fetch(
+            "/api/admin/statistics"
+          ),
+        ]);
+
+      if (
+        responses[0].status === 401 ||
+        responses[1].status === 401
+      ) {
+        setAuthenticated(false);
+        return;
+      }
+
+      if (responses[0].ok) {
+        setAdvertisements(
+          await responses[0].json()
+        );
+      }
+
+      if (responses[1].ok) {
+        setStatistics(
+          await responses[1].json()
+        );
+      }
+
       setAuthenticated(true);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+      setCheckingAuth(false);
     }
-  };
+  }
 
   useEffect(() => {
-    loadAdvertisements();
+    loadData();
   }, []);
 
-  const login = async (event: React.FormEvent) => {
+  async function login(
+    event: React.FormEvent
+  ) {
     event.preventDefault();
 
-    const response = await fetch("/api/admin/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ password }),
-    });
+    setLoginError("");
 
-    const data = await response.json();
+    try {
+      const response = await fetch(
+        "/api/admin/login",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+          body: JSON.stringify({
+            password,
+          }),
+        }
+      );
 
-    if (!response.ok) {
-      setMessage(data.error || "Giris basarisiz.");
-      return;
+      if (!response.ok) {
+        setLoginError(
+          "Hatalı şifre."
+        );
+        return;
+      }
+
+      setPassword("");
+      await loadData();
+    } catch {
+      setLoginError(
+        "Giriş sırasında hata oluştu."
+      );
     }
+  }
 
-    setPassword("");
-    setMessage("");
-    setAuthenticated(true);
-    loadAdvertisements();
-  };
-
-  const updateStatus = async (
-    id: string,
-    status: "APPROVED" | "REJECTED" | "PENDING"
-  ) => {
-    const response = await fetch("/api/admin/advertisements", {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        id,
-        status,
-      }),
-    });
-
-    if (response.ok) {
-      loadAdvertisements();
-    }
-  };
-
-  const logout = async () => {
-    await fetch("/api/admin/logout", {
-      method: "POST",
-    });
+  async function logout() {
+    await fetch(
+      "/api/admin/logout",
+      {
+        method: "POST",
+      }
+    );
 
     setAuthenticated(false);
     setAdvertisements([]);
-  };
+    setStatistics(null);
+  }
+
+  async function updateStatus(
+    id: string,
+    status: string
+  ) {
+    try {
+      const response = await fetch(
+        "/api/admin/advertisements",
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+          body: JSON.stringify({
+            id,
+            status,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        alert(
+          "Reklam güncellenemedi."
+        );
+        return;
+      }
+
+      await loadData();
+    } catch {
+      alert(
+        "Bir hata oluştu."
+      );
+    }
+  }
+
+  async function deleteAdvertisement(
+    id: string
+  ) {
+    if (
+      !confirm(
+        "Bu reklamı silmek istediğinizden emin misiniz?"
+      )
+    ) {
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        "/api/admin/advertisements",
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+          body: JSON.stringify({
+            id,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        alert(
+          "Reklam silinemedi."
+        );
+        return;
+      }
+
+      await loadData();
+    } catch {
+      alert(
+        "Bir hata oluştu."
+      );
+    }
+  }
+
+  function formatPrice(
+    price: number
+  ) {
+    return new Intl.NumberFormat(
+      "tr-TR",
+      {
+        style: "currency",
+        currency: "TRY",
+        maximumFractionDigits: 0,
+      }
+    ).format(price);
+  }
+
+  if (checkingAuth) {
+    return (
+      <main className="admin-page">
+        <div className="admin-container">
+          <h1>Yükleniyor...</h1>
+        </div>
+      </main>
+    );
+  }
 
   if (!authenticated) {
     return (
-      <main className="form-page">
-        <div className="container admin-login">
-          <a href="/" className="back-link">
-            ← Ana Sayfaya Don
-          </a>
+      <main className="admin-page">
+        <div className="admin-login-box">
+          <span className="eyebrow">
+            KAZANIX
+          </span>
 
-          <div className="form-header">
-            <span>ADMIN GIRISI</span>
-            <h1>Kazanix Yonetim Paneli</h1>
-            <p>Reklam basvurularini yonetmek icin giris yapin.</p>
-          </div>
+          <h1>
+            Yönetim Paneli
+          </h1>
 
-          <form
-            className="advertisement-form"
-            onSubmit={login}
-          >
-            <label>
-              Admin Sifresi
-              <input
-                type="password"
-                value={password}
-                onChange={(event) =>
-                  setPassword(event.target.value)
-                }
-                required
-              />
-            </label>
+          <p>
+            Bu alan yalnızca yetkili
+            yönetici içindir.
+          </p>
 
-            <button
-              type="submit"
-              className="primary-btn"
-            >
-              Giris Yap
-            </button>
+          <form onSubmit={login}>
+            <input
+              type="password"
+              value={password}
+              onChange={(event) =>
+                setPassword(
+                  event.target.value
+                )
+              }
+              placeholder="Admin şifresi"
+              required
+            />
 
-            {message && (
-              <p className="form-message">
-                {message}
+            {loginError && (
+              <p className="login-error">
+                {loginError}
               </p>
             )}
+
+            <button type="submit">
+              Giriş Yap
+            </button>
           </form>
+        </div>
+      </main>
+    );
+  }
+
+  if (loading) {
+    return (
+      <main className="admin-page">
+        <div className="admin-container">
+          <h1>
+            Veriler yükleniyor...
+          </h1>
         </div>
       </main>
     );
@@ -140,79 +317,292 @@ export default function AdminPage() {
 
   return (
     <main className="admin-page">
-      <div className="container">
-        <div className="admin-top">
+      <div className="admin-container">
+
+        <div className="admin-header">
           <div>
-            <span>ADMIN PANELI</span>
-            <h1>Reklam Yonetimi</h1>
-            <p>Gelen reklam taleplerini onaylayin veya reddedin.</p>
+            <span className="eyebrow">
+              YÖNETİM PANELİ
+            </span>
+
+            <h1>
+              Kazanix Yönetim Paneli
+            </h1>
+
+            <p>
+              Reklamları ve platform
+              istatistiklerini buradan
+              yönetebilirsiniz.
+            </p>
           </div>
 
-          <button
-            className="secondary-btn"
-            onClick={logout}
-          >
-            Cikis Yap
-          </button>
+          <div className="admin-header-actions">
+            <button
+              onClick={loadData}
+              className="refresh-button"
+            >
+              Yenile
+            </button>
+
+            <button
+              onClick={logout}
+              className="logout-button"
+            >
+              Çıkış Yap
+            </button>
+          </div>
         </div>
 
-        <div className="admin-list">
-          {advertisements.length === 0 && (
-            <p className="ads-loading">
-              Henuz reklam basvurusu yok.
-            </p>
+        {statistics && (
+          <section className="statistics-grid">
+
+            <article className="stat-card">
+              <p>Toplam Reklam</p>
+              <strong>
+                {statistics.total}
+              </strong>
+            </article>
+
+            <article className="stat-card">
+              <p>Bekleyen</p>
+              <strong>
+                {statistics.pending}
+              </strong>
+            </article>
+
+            <article className="stat-card">
+              <p>Aktif Reklam</p>
+              <strong>
+                {statistics.approved}
+              </strong>
+            </article>
+
+            <article className="stat-card">
+              <p>Reddedilen</p>
+              <strong>
+                {statistics.rejected}
+              </strong>
+            </article>
+
+            <article className="stat-card">
+              <p>Süresi Dolan</p>
+              <strong>
+                {statistics.expired}
+              </strong>
+            </article>
+
+            <article className="stat-card">
+              <p>Aktif Reklam Geliri</p>
+              <strong>
+                {formatPrice(
+                  statistics.revenue
+                )}
+              </strong>
+            </article>
+
+          </section>
+        )}
+
+        {statistics && (
+          <section className="top-ads-section">
+
+            <div className="section-heading">
+              <span>
+                ÖNE ÇIKAN REKLAMLAR
+              </span>
+
+              <h2>
+                En yüksek paketli reklamlar
+              </h2>
+            </div>
+
+            <div className="top-ad-list">
+
+              {statistics
+                .topAdvertisements
+                .length === 0 ? (
+                <p>
+                  Henüz reklam bulunmuyor.
+                </p>
+              ) : (
+                statistics
+                  .topAdvertisements
+                  .map(
+                    (ad, index) => (
+                      <article
+                        className="top-ad-item"
+                        key={ad.id}
+                      >
+                        <div className="top-ad-rank">
+                          #{index + 1}
+                        </div>
+
+                        <div className="top-ad-info">
+                          <strong>
+                            {ad.company}
+                          </strong>
+
+                          <span>
+                            {ad.title}
+                          </span>
+                        </div>
+
+                        <div className="top-ad-package">
+                          <span>
+                            {ad.package}
+                          </span>
+
+                          <strong>
+                            {formatPrice(
+                              ad.packagePrice
+                            )}
+                          </strong>
+                        </div>
+                      </article>
+                    )
+                  )
+              )}
+
+            </div>
+
+          </section>
+        )}
+
+        <section className="advertisements-section">
+
+          <div className="section-heading">
+            <span>
+              REKLAM YÖNETİMİ
+            </span>
+
+            <h2>
+              Tüm Reklamlar
+            </h2>
+          </div>
+
+          {advertisements.length === 0 ? (
+            <div className="empty-state">
+              Henüz reklam bulunmuyor.
+            </div>
+          ) : (
+            <div className="admin-table-wrapper">
+
+              <table className="admin-table">
+
+                <thead>
+                  <tr>
+                    <th>Firma</th>
+                    <th>Reklam</th>
+                    <th>Paket</th>
+                    <th>Fiyat</th>
+                    <th>Durum</th>
+                    <th>İşlemler</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+
+                  {advertisements.map(
+                    (ad) => (
+                      <tr key={ad.id}>
+
+                        <td>
+                          <strong>
+                            {ad.company}
+                          </strong>
+
+                          <br />
+
+                          <small>
+                            {ad.email}
+                          </small>
+                        </td>
+
+                        <td>
+                          {ad.title}
+                        </td>
+
+                        <td>
+                          {ad.package}
+                        </td>
+
+                        <td>
+                          {formatPrice(
+                            ad.packagePrice
+                          )}
+                        </td>
+
+                        <td>
+                          <span
+                            className={
+                              "status-badge status-" +
+                              ad.status.toLowerCase()
+                            }
+                          >
+                            {ad.status}
+                          </span>
+                        </td>
+
+                        <td>
+
+                          <div className="admin-actions">
+
+                            {ad.status !==
+                              "APPROVED" && (
+                              <button
+                                onClick={() =>
+                                  updateStatus(
+                                    ad.id,
+                                    "APPROVED"
+                                  )
+                                }
+                              >
+                                Onayla
+                              </button>
+                            )}
+
+                            {ad.status !==
+                              "REJECTED" && (
+                              <button
+                                onClick={() =>
+                                  updateStatus(
+                                    ad.id,
+                                    "REJECTED"
+                                  )
+                                }
+                              >
+                                Reddet
+                              </button>
+                            )}
+
+                            <button
+                              className="delete-button"
+                              onClick={() =>
+                                deleteAdvertisement(
+                                  ad.id
+                                )
+                              }
+                            >
+                              Sil
+                            </button>
+
+                          </div>
+
+                        </td>
+
+                      </tr>
+                    )
+                  )}
+
+                </tbody>
+
+              </table>
+
+            </div>
           )}
 
-          {advertisements.map((ad) => (
-            <article
-              className="admin-ad-card"
-              key={ad.id}
-            >
-              <div className="admin-ad-info">
-                <span className={`status status-${ad.status}`}>
-                  {ad.status}
-                </span>
+        </section>
 
-                <h2>{ad.title}</h2>
-
-                <strong>{ad.company}</strong>
-
-                <p>{ad.description}</p>
-
-                <small>{ad.email}</small>
-              </div>
-
-              <div className="admin-actions">
-                <button
-                  className="approve-btn"
-                  onClick={() =>
-                    updateStatus(ad.id, "APPROVED")
-                  }
-                >
-                  Onayla
-                </button>
-
-                <button
-                  className="reject-btn"
-                  onClick={() =>
-                    updateStatus(ad.id, "REJECTED")
-                  }
-                >
-                  Reddet
-                </button>
-
-                <button
-                  className="secondary-btn"
-                  onClick={() =>
-                    updateStatus(ad.id, "PENDING")
-                  }
-                >
-                  Beklet
-                </button>
-              </div>
-            </article>
-          ))}
-        </div>
       </div>
     </main>
   );

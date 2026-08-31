@@ -1,83 +1,80 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { AdvertisementStatus } from "@prisma/client";
 
-const packages: Record<
-  string,
-  {
-    days: number;
-    price: number;
-    priority: number;
+const requestLog = new Map<string, number[]>();
+
+function getClientIp(request: NextRequest) {
+  const forwarded = request.headers.get("x-forwarded-for");
+
+  if (forwarded) {
+    return forwarded.split(",")[0].trim();
   }
-> = {
-  BASLANGIC: {
-    days: 7,
-    price: 99,
-    priority: 1,
-  },
-  STANDART: {
-    days: 30,
-    price: 299,
-    priority: 2,
-  },
-  ONE_CIKAN: {
-    days: 30,
-    price: 599,
-    priority: 3,
-  },
-};
+
+  return request.headers.get("x-real-ip") || "unknown";
+}
+
+function isRateLimited(ip: string) {
+  const now = Date.now();
+  const windowMs = 60 * 60 * 1000;
+  const maxRequests = 5;
+
+  const requests = requestLog.get(ip) || [];
+
+  const recentRequests = requests.filter(
+    (time) => now - time < windowMs
+  );
+
+  if (recentRequests.length >= maxRequests) {
+    requestLog.set(ip, recentRequests);
+    return true;
+  }
+
+  recentRequests.push(now);
+  requestLog.set(ip, recentRequests);
+
+  return false;
+}
 
 export async function GET() {
   try {
     const now = new Date();
 
-    // Süresi dolan onaylı reklamları otomatik olarak EXPIRED yap
     await prisma.advertisement.updateMany({
       where: {
-        status: AdvertisementStatus.APPROVED,
+        status: "APPROVED",
         expiresAt: {
           lte: now,
         },
       },
       data: {
-        status: AdvertisementStatus.EXPIRED,
+        status: "EXPIRED",
       },
     });
 
-    // Sadece aktif reklamları getir
     const advertisements =
       await prisma.advertisement.findMany({
         where: {
-          status: AdvertisementStatus.APPROVED,
-          startsAt: {
-            lte: now,
-          },
-          expiresAt: {
-            gt: now,
-          },
+          status: "APPROVED",
+          OR: [
+            {
+              expiresAt: null,
+            },
+            {
+              expiresAt: {
+                gt: now,
+              },
+            },
+          ],
         },
-        orderBy: {
-          createdAt: "desc",
-        },
+        orderBy: [
+          {
+            packagePrice: "desc",
+          },
+          {
+            createdAt: "desc",
+          },
+        ],
       });
-
-    // Öne çıkan reklamlar her zaman önce
-    advertisements.sort((a, b) => {
-      const priorityA =
-        packages[a.package]?.priority ?? 0;
-
-      const priorityB =
-        packages[b.package]?.priority ?? 0;
-
-      if (priorityA !== priorityB) {
-        return priorityB - priorityA;
-      }
-
-      return (
-        b.createdAt.getTime() -
-        a.createdAt.getTime()
-      );
-    });
 
     return NextResponse.json(advertisements);
   } catch (error) {
@@ -90,8 +87,20 @@ export async function GET() {
   }
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
+    const ip = getClientIp(request);
+
+    if (isRateLimited(ip)) {
+      return NextResponse.json(
+        {
+          error:
+            "Çok fazla reklam gönderme denemesi yaptınız. Lütfen daha sonra tekrar deneyin.",
+        },
+        { status: 429 }
+      );
+    }
+
     const body = await request.json();
 
     const {
@@ -102,7 +111,36 @@ export async function POST(request: Request) {
       image,
       link,
       package: selectedPackage,
+      website,
+      formStartedAt,
     } = body;
+
+    // Honeypot: gerçek kullanıcı bu alanı doldurmaz
+    if (website && String(website).trim() !== "") {
+      return NextResponse.json(
+        { error: "Spam tespit edildi." },
+        { status: 400 }
+      );
+    }
+
+    // Çok hızlı gönderimleri engelle
+    if (formStartedAt) {
+      const startedAt = Number(formStartedAt);
+      const now = Date.now();
+
+      if (
+        !Number.isNaN(startedAt) &&
+        now - startedAt < 3000
+      ) {
+        return NextResponse.json(
+          {
+            error:
+              "Form çok hızlı gönderildi. Lütfen formu tekrar doldurun.",
+          },
+          { status: 400 }
+        );
+      }
+    }
 
     if (
       !company ||
@@ -112,60 +150,76 @@ export async function POST(request: Request) {
       !selectedPackage
     ) {
       return NextResponse.json(
-        {
-          error:
-            "Lütfen zorunlu alanları doldurun.",
-        },
-        {
-          status: 400,
-        }
+        { error: "Lütfen zorunlu alanları doldurun." },
+        { status: 400 }
       );
     }
 
-    const selectedPlan =
-      packages[selectedPackage];
-
-    if (!selectedPlan) {
+    if (
+      company.length > 100 ||
+      title.length > 150 ||
+      description.length > 3000 ||
+      email.length > 150
+    ) {
       return NextResponse.json(
-        {
-          error:
-            "Geçersiz reklam paketi.",
-        },
-        {
-          status: 400,
-        }
+        { error: "Girilen bilgiler izin verilen sınırı aşıyor." },
+        { status: 400 }
       );
     }
 
-    // Reklam önce admin onayı bekler
+    const emailRegex =
+      /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!emailRegex.test(email)) {
+      return NextResponse.json(
+        { error: "Geçerli bir e-posta adresi girin." },
+        { status: 400 }
+      );
+    }
+
+    if (link) {
+      try {
+        new URL(link);
+      } catch {
+        return NextResponse.json(
+          { error: "Geçerli bir bağlantı adresi girin." },
+          { status: 400 }
+        );
+      }
+    }
+
+    if (image) {
+      try {
+        new URL(image);
+      } catch {
+        return NextResponse.json(
+          { error: "Geçerli bir görsel bağlantısı girin." },
+          { status: 400 }
+        );
+      }
+    }
+
     const advertisement =
       await prisma.advertisement.create({
         data: {
-          company,
-          email,
-          title,
-          description,
-          image: image || null,
-          link: link || null,
-          package: selectedPackage,
-          packagePrice:
-            selectedPlan.price,
-          status:
-            AdvertisementStatus.PENDING,
+          company: String(company).trim(),
+          email: String(email).trim().toLowerCase(),
+          title: String(title).trim(),
+          description: String(description).trim(),
+          image: image
+            ? String(image).trim()
+            : null,
+          link: link
+            ? String(link).trim()
+            : null,
+          package: String(selectedPackage),
+          packagePrice: 0,
+          status: "PENDING",
         },
       });
 
     return NextResponse.json(
-      {
-        success: true,
-        advertisement,
-        packageInfo: {
-          price:
-            selectedPlan.price,
-          days:
-            selectedPlan.days,
-        },
-      },
+      advertisement,
       {
         status: 201,
       }
@@ -174,13 +228,8 @@ export async function POST(request: Request) {
     console.error(error);
 
     return NextResponse.json(
-      {
-        error:
-          "Reklam oluşturulamadı.",
-      },
-      {
-        status: 500,
-      }
+      { error: "Reklam oluşturulamadı." },
+      { status: 500 }
     );
   }
 }
