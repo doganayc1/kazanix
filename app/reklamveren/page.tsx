@@ -1,7 +1,6 @@
 "use client";
 
-import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type Advertisement = {
   id: string;
@@ -19,78 +18,62 @@ type Advertisement = {
   createdAt: string;
 };
 
-type Statistics = {
-  total: number;
-  pending: number;
-  approved: number;
-  rejected: number;
-  expired: number;
-  totalSpent: number;
-};
-
-type ApiResponse = {
-  advertisements: Advertisement[];
-  statistics: Statistics;
-};
-
 export default function AdvertiserPage() {
-  const [email, setEmail] = useState("");
-  const [data, setData] =
-    useState<ApiResponse | null>(null);
+  const [advertisements, setAdvertisements] =
+    useState<Advertisement[]>([]);
 
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [loading, setLoading] =
+    useState(true);
 
-  async function searchAdvertisements(
-    event: React.FormEvent
-  ) {
-    event.preventDefault();
+  const [editingAdvertisement, setEditingAdvertisement] =
+    useState<Advertisement | null>(null);
 
-    const cleanEmail =
-      email.trim().toLowerCase();
+  const [saving, setSaving] =
+    useState(false);
 
-    if (!cleanEmail) {
-      setError(
-        "Lütfen e-posta adresinizi girin."
-      );
+  const [message, setMessage] =
+    useState("");
 
-      return;
-    }
-
+  async function loadAdvertisements() {
     try {
       setLoading(true);
-      setError("");
-      setData(null);
 
       const response = await fetch(
-        `/api/advertiser/advertisements?email=${encodeURIComponent(
-          cleanEmail
-        )}`
+        "/api/advertiser/advertisements"
       );
 
-      const result =
-        await response.json();
+      if (response.status === 401) {
+        window.location.href =
+          "/reklamveren/giris";
+        return;
+      }
+
+      const data = await response.json();
 
       if (!response.ok) {
-        setError(
-          result.error ||
-            "Bilgiler alınamadı."
+        setMessage(
+          data.error ||
+          "Reklamlar yuklenemedi."
         );
 
         return;
       }
 
-      setData(result);
+      setAdvertisements(data);
     } catch (error) {
       console.error(error);
 
-      setError(
-        "Sunucuya bağlanırken bir hata oluştu."
+      setMessage(
+        "Baglanti hatasi olustu."
       );
     } finally {
       setLoading(false);
     }
   }
+
+  useEffect(() => {
+    loadAdvertisements();
+  }, []);
 
   function formatPrice(price: number) {
     return new Intl.NumberFormat(
@@ -103,9 +86,7 @@ export default function AdvertiserPage() {
     ).format(price || 0);
   }
 
-  function formatDate(
-    date: string | null
-  ) {
+  function formatDate(date: string | null) {
     if (!date) {
       return "-";
     }
@@ -118,18 +99,118 @@ export default function AdvertiserPage() {
     ).format(new Date(date));
   }
 
-  function statusText(status: string) {
-    const statuses: Record<
-      string,
-      string
-    > = {
+  function getStatusText(status: string) {
+    const statuses: Record<string, string> = {
       PENDING: "Beklemede",
       APPROVED: "Aktif",
       REJECTED: "Reddedildi",
-      EXPIRED: "Süresi Doldu",
+      EXPIRED: "Suresi Doldu",
     };
 
     return statuses[status] || status;
+  }
+
+  async function saveAdvertisement(
+    event: React.FormEvent
+  ) {
+    event.preventDefault();
+
+    if (!editingAdvertisement) {
+      return;
+    }
+
+    try {
+      setSaving(true);
+      setMessage("");
+
+      const response = await fetch(
+        "/api/advertiser/advertisements",
+        {
+          method: "PATCH",
+
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+
+          body: JSON.stringify(
+            editingAdvertisement
+          ),
+        }
+      );
+
+      const data =
+        await response.json();
+
+      if (!response.ok) {
+        setMessage(
+          data.error ||
+          "Reklam guncellenemedi."
+        );
+
+        return;
+      }
+
+      setEditingAdvertisement(null);
+
+      setMessage(
+        "Reklam basariyla guncellendi."
+      );
+
+      await loadAdvertisements();
+    } catch (error) {
+      console.error(error);
+
+      setMessage(
+        "Reklam kaydedilirken hata olustu."
+      );
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  const total =
+    advertisements.length;
+
+  const pending =
+    advertisements.filter(
+      (ad) =>
+        ad.status === "PENDING"
+    ).length;
+
+  const approved =
+    advertisements.filter(
+      (ad) =>
+        ad.status === "APPROVED"
+    ).length;
+
+  const rejected =
+    advertisements.filter(
+      (ad) =>
+        ad.status === "REJECTED"
+    ).length;
+
+  const totalSpent =
+    advertisements.reduce(
+      (total, ad) =>
+        total + (ad.packagePrice || 0),
+      0
+    );
+
+  if (loading) {
+    return (
+      <main className="advertiser-page">
+        <div className="advertiser-container">
+          <h1>
+            Reklamveren Paneli
+          </h1>
+
+          <p>
+            Reklamlariniz yukleniyor...
+          </p>
+        </div>
+      </main>
+    );
   }
 
   return (
@@ -137,278 +218,438 @@ export default function AdvertiserPage() {
 
       <div className="advertiser-container">
 
-        <div className="advertiser-hero">
+        <header className="advertiser-header">
 
-          <Link
-            href="/"
-            className="back-home"
+          <div>
+            <span className="eyebrow">
+              REKLAMVEREN PANELI
+            </span>
+
+            <h1>
+              Reklamlarim
+            </h1>
+
+            <p>
+              Reklamlarinizi,
+              paketlerinizi ve
+              durumlarini buradan
+              yonetebilirsiniz.
+            </p>
+          </div>
+
+          <button
+            className="refresh-button"
+            onClick={
+              loadAdvertisements
+            }
           >
-            ← Ana Sayfa
-          </Link>
+            Yenile
+          </button>
 
-          <span className="eyebrow">
-            REKLAMVEREN PANELİ
-          </span>
+        </header>
 
-          <h1>
-            Reklamlarınızı Yönetin
-          </h1>
+        {message && (
+          <div className="advertiser-message">
+            {message}
+          </div>
+        )}
 
-          <p>
-            E-posta adresinizi girerek
-            verdiğiniz reklamların durumunu
-            ve istatistiklerini görüntüleyin.
-          </p>
+        <section className="advertiser-stats">
 
-        </div>
+          <article>
+            <span>
+              Toplam Reklam
+            </span>
 
-        <section className="advertiser-search-card">
+            <strong>
+              {total}
+            </strong>
+          </article>
 
-          <form
-            onSubmit={searchAdvertisements}
-            className="advertiser-search-form"
-          >
+          <article>
+            <span>
+              Bekleyen
+            </span>
 
-            <input
-              type="email"
-              placeholder="Reklam verirken kullandığınız e-posta"
-              value={email}
-              onChange={(event) =>
-                setEmail(event.target.value)
-              }
-              required
-            />
+            <strong>
+              {pending}
+            </strong>
+          </article>
 
-            <button
-              type="submit"
-              disabled={loading}
-            >
-              {loading
-                ? "Aranıyor..."
-                : "Reklamlarımı Gör"}
-            </button>
+          <article>
+            <span>
+              Aktif
+            </span>
 
-          </form>
+            <strong>
+              {approved}
+            </strong>
+          </article>
 
-          {error && (
-            <div className="advertiser-error">
-              {error}
+          <article>
+            <span>
+              Reddedilen
+            </span>
+
+            <strong>
+              {rejected}
+            </strong>
+          </article>
+
+          <article>
+            <span>
+              Toplam Harcama
+            </span>
+
+            <strong>
+              {formatPrice(totalSpent)}
+            </strong>
+          </article>
+
+        </section>
+
+        <section className="advertiser-list">
+
+          <div className="section-heading">
+
+            <div>
+              <span>
+                REKLAM LISTESI
+              </span>
+
+              <h2>
+                Reklamlariniz
+              </h2>
             </div>
+
+            <a
+              href="/reklam-ver"
+              className="new-ad-button"
+            >
+              Yeni Reklam Ver
+            </a>
+
+          </div>
+
+          {advertisements.length === 0 ? (
+
+            <div className="empty-state">
+
+              <h3>
+                Henuz reklam yok
+              </h3>
+
+              <p>
+                Ilk reklam kampanyanizi
+                olusturarak baslayin.
+              </p>
+
+              <a href="/reklam-ver">
+                Reklam Ver
+              </a>
+
+            </div>
+
+          ) : (
+
+            <div className="advertiser-ad-grid">
+
+              {advertisements.map(
+                (ad) => (
+
+                  <article
+                    className="advertiser-ad-card"
+                    key={ad.id}
+                  >
+
+                    <div className="advertiser-ad-top">
+
+                      <span
+                        className={
+                          "status-badge status-" +
+                          ad.status.toLowerCase()
+                        }
+                      >
+                        {getStatusText(
+                          ad.status
+                        )}
+                      </span>
+
+                      <span className="package-badge">
+                        {ad.package}
+                      </span>
+
+                    </div>
+
+                    <h3>
+                      {ad.title}
+                    </h3>
+
+                    <p>
+                      {ad.description}
+                    </p>
+
+                    <div className="advertiser-ad-info">
+
+                      <div>
+                        <span>
+                          Paket
+                        </span>
+
+                        <strong>
+                          {ad.package}
+                        </strong>
+                      </div>
+
+                      <div>
+                        <span>
+                          Fiyat
+                        </span>
+
+                        <strong>
+                          {formatPrice(
+                            ad.packagePrice
+                          )}
+                        </strong>
+                      </div>
+
+                      <div>
+                        <span>
+                          Baslangic
+                        </span>
+
+                        <strong>
+                          {formatDate(
+                            ad.startsAt
+                          )}
+                        </strong>
+                      </div>
+
+                      <div>
+                        <span>
+                          Bitis
+                        </span>
+
+                        <strong>
+                          {formatDate(
+                            ad.expiresAt
+                          )}
+                        </strong>
+                      </div>
+
+                    </div>
+
+                    <div className="advertiser-ad-actions">
+
+                      {ad.status !==
+                        "APPROVED" && (
+
+                        <button
+                          onClick={() =>
+                            setEditingAdvertisement(
+                              {
+                                ...ad,
+                              }
+                            )
+                          }
+                        >
+                          Duzenle
+                        </button>
+
+                      )}
+
+                      {ad.status ===
+                        "APPROVED" && (
+
+                        <span className="locked-text">
+                          Aktif reklam
+                          yonetici onayi ile
+                          degistirilebilir.
+                        </span>
+
+                      )}
+
+                    </div>
+
+                  </article>
+
+                )
+              )}
+
+            </div>
+
           )}
 
         </section>
 
-        {data && (
+      </div>
 
-          <>
-            <section className="advertiser-stats">
+      {editingAdvertisement && (
 
-              <article className="advertiser-stat-card">
-                <span>📊</span>
-                <p>Toplam Reklam</p>
-                <strong>
-                  {data.statistics.total}
-                </strong>
-              </article>
+        <div className="advertiser-modal">
 
-              <article className="advertiser-stat-card">
-                <span>⏳</span>
-                <p>Bekleyen</p>
-                <strong>
-                  {data.statistics.pending}
-                </strong>
-              </article>
+          <div className="advertiser-modal-content">
 
-              <article className="advertiser-stat-card">
-                <span>✅</span>
-                <p>Aktif Reklam</p>
-                <strong>
-                  {data.statistics.approved}
-                </strong>
-              </article>
+            <button
+              className="modal-close"
+              onClick={() =>
+                setEditingAdvertisement(
+                  null
+                )
+              }
+            >
+              ×
+            </button>
 
-              <article className="advertiser-stat-card">
-                <span>⌛</span>
-                <p>Süresi Dolan</p>
-                <strong>
-                  {data.statistics.expired}
-                </strong>
-              </article>
+            <h2>
+              Reklami Duzenle
+            </h2>
 
-              <article className="advertiser-stat-card">
-                <span>❌</span>
-                <p>Reddedilen</p>
-                <strong>
-                  {data.statistics.rejected}
-                </strong>
-              </article>
+            <form
+              onSubmit={
+                saveAdvertisement
+              }
+            >
 
-              <article className="advertiser-stat-card advertiser-money">
-                <span>💰</span>
-                <p>Toplam Paket Tutarı</p>
-                <strong>
-                  {formatPrice(
-                    data.statistics.totalSpent
-                  )}
-                </strong>
-              </article>
+              <label>
+                Firma Adi
 
-            </section>
+                <input
+                  value={
+                    editingAdvertisement.company
+                  }
+                  onChange={(event) =>
+                    setEditingAdvertisement({
+                      ...editingAdvertisement,
+                      company:
+                        event.target.value,
+                    })
+                  }
+                />
+              </label>
 
-            <section className="advertiser-list-section">
+              <label>
+                E-posta
 
-              <div className="advertiser-section-header">
+                <input
+                  type="email"
+                  value={
+                    editingAdvertisement.email
+                  }
+                  onChange={(event) =>
+                    setEditingAdvertisement({
+                      ...editingAdvertisement,
+                      email:
+                        event.target.value,
+                    })
+                  }
+                />
+              </label>
 
-                <div>
+              <label>
+                Reklam Basligi
 
-                  <span className="eyebrow">
-                    REKLAMLARIM
-                  </span>
+                <input
+                  value={
+                    editingAdvertisement.title
+                  }
+                  onChange={(event) =>
+                    setEditingAdvertisement({
+                      ...editingAdvertisement,
+                      title:
+                        event.target.value,
+                    })
+                  }
+                />
+              </label>
 
-                  <h2>
-                    Reklam Geçmişiniz
-                  </h2>
+              <label>
+                Aciklama
 
-                </div>
+                <textarea
+                  rows={5}
+                  value={
+                    editingAdvertisement.description
+                  }
+                  onChange={(event) =>
+                    setEditingAdvertisement({
+                      ...editingAdvertisement,
+                      description:
+                        event.target.value,
+                    })
+                  }
+                />
+              </label>
 
-                <Link
-                  href="/reklam-ver"
-                  className="new-ad-button"
+              <label>
+                Gorsel URL
+
+                <input
+                  value={
+                    editingAdvertisement.image ||
+                    ""
+                  }
+                  onChange={(event) =>
+                    setEditingAdvertisement({
+                      ...editingAdvertisement,
+                      image:
+                        event.target.value ||
+                        null,
+                    })
+                  }
+                />
+              </label>
+
+              <label>
+                Hedef URL
+
+                <input
+                  value={
+                    editingAdvertisement.link ||
+                    ""
+                  }
+                  onChange={(event) =>
+                    setEditingAdvertisement({
+                      ...editingAdvertisement,
+                      link:
+                        event.target.value ||
+                        null,
+                    })
+                  }
+                />
+              </label>
+
+              <div className="modal-actions">
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    setEditingAdvertisement(
+                      null
+                    )
+                  }
                 >
-                  + Yeni Reklam Ver
-                </Link>
+                  Iptal
+                </button>
+
+                <button
+                  type="submit"
+                  disabled={saving}
+                >
+                  {saving
+                    ? "Kaydediliyor..."
+                    : "Kaydet"}
+                </button>
 
               </div>
 
-              {data.advertisements.length === 0 ? (
+            </form>
 
-                <div className="advertiser-empty">
+          </div>
 
-                  <h3>
-                    Henüz reklam bulunamadı
-                  </h3>
+        </div>
 
-                  <p>
-                    Bu e-posta adresi ile
-                    oluşturulmuş bir reklam
-                    bulunmuyor.
-                  </p>
-
-                  <Link
-                    href="/reklam-ver"
-                    className="new-ad-button"
-                  >
-                    İlk Reklamını Ver
-                  </Link>
-
-                </div>
-
-              ) : (
-
-                <div className="advertiser-ad-grid">
-
-                  {data.advertisements.map(
-                    (advertisement) => (
-
-                      <article
-                        key={advertisement.id}
-                        className="advertiser-ad-card"
-                      >
-
-                        <div className="advertiser-ad-top">
-
-                          <span
-                            className={
-                              "advertiser-status status-" +
-                              advertisement.status.toLowerCase()
-                            }
-                          >
-                            {statusText(
-                              advertisement.status
-                            )}
-                          </span>
-
-                          <span>
-                            {advertisement.company}
-                          </span>
-
-                        </div>
-
-                        <h3>
-                          {advertisement.title}
-                        </h3>
-
-                        <p>
-                          {advertisement.description}
-                        </p>
-
-                        <div className="advertiser-package">
-
-                          <span>
-                            Paket
-                          </span>
-
-                          <strong>
-                            {advertisement.package}
-                          </strong>
-
-                        </div>
-
-                        <div className="advertiser-details">
-
-                          <div>
-                            <span>
-                              Paket Tutarı
-                            </span>
-
-                            <strong>
-                              {formatPrice(
-                                advertisement.packagePrice
-                              )}
-                            </strong>
-                          </div>
-
-                          <div>
-                            <span>
-                              Başlangıç
-                            </span>
-
-                            <strong>
-                              {formatDate(
-                                advertisement.startsAt
-                              )}
-                            </strong>
-                          </div>
-
-                          <div>
-                            <span>
-                              Bitiş
-                            </span>
-
-                            <strong>
-                              {formatDate(
-                                advertisement.expiresAt
-                              )}
-                            </strong>
-                          </div>
-
-                        </div>
-
-                      </article>
-
-                    )
-                  )}
-
-                </div>
-
-              )}
-
-            </section>
-          </>
-
-        )}
-
-      </div>
+      )}
 
     </main>
   );

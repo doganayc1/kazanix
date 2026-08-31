@@ -27,10 +27,9 @@ model User {
   password String
   role     Role   @default(USER)
 
-  business       BusinessProfile?
-  comments       Comment[]
-  favorites      Favorite[]
-  advertisements Advertisement[]
+  business  BusinessProfile?
+  comments  Comment[]
+  favorites Favorite[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -112,8 +111,6 @@ model Favorite {
 
 model Advertisement {
   id           String              @id @default(cuid())
-  advertiserId String?
-  advertiser   User?               @relation(fields: [advertiserId], references: [id])
   company      String
   email        String
   title        String
