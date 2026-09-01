@@ -9,7 +9,8 @@ export async function GET() {
     if (!user) {
       return NextResponse.json(
         {
-          error: "Reklam veren girisi gerekli.",
+          error:
+            "Reklam veren girişi gerekli.",
         },
         {
           status: 401,
@@ -20,11 +21,21 @@ export async function GET() {
     const advertisements =
       await prisma.advertisement.findMany({
         where: {
-          advertiserId: user.id,
+          OR: [
+            {
+              advertiserId: user.id,
+            },
+            {
+              advertiserId: null,
+              email: user.email,
+            },
+          ],
         },
+
         orderBy: {
           createdAt: "desc",
         },
+
         select: {
           id: true,
           company: true,
@@ -40,33 +51,44 @@ export async function GET() {
         },
       });
 
-    const total = advertisements.length;
+    const total =
+      advertisements.length;
 
-    const pending = advertisements.filter(
-      (ad) => ad.status === "PENDING"
-    ).length;
+    const pending =
+      advertisements.filter(
+        (ad) =>
+          ad.status === "PENDING"
+      ).length;
 
-    const approved = advertisements.filter(
-      (ad) => ad.status === "APPROVED"
-    ).length;
+    const approved =
+      advertisements.filter(
+        (ad) =>
+          ad.status === "APPROVED"
+      ).length;
 
-    const rejected = advertisements.filter(
-      (ad) => ad.status === "REJECTED"
-    ).length;
+    const rejected =
+      advertisements.filter(
+        (ad) =>
+          ad.status === "REJECTED"
+      ).length;
 
-    const expired = advertisements.filter(
-      (ad) => ad.status === "EXPIRED"
-    ).length;
+    const expired =
+      advertisements.filter(
+        (ad) =>
+          ad.status === "EXPIRED"
+      ).length;
 
     const impressions =
       advertisements.reduce(
-        (sum, ad) => sum + ad.impressions,
+        (sum, ad) =>
+          sum + ad.impressions,
         0
       );
 
     const clicks =
       advertisements.reduce(
-        (sum, ad) => sum + ad.clicks,
+        (sum, ad) =>
+          sum + ad.clicks,
         0
       );
 
@@ -82,7 +104,10 @@ export async function GET() {
     const ctr =
       impressions > 0
         ? Number(
-            ((clicks / impressions) * 100).toFixed(2)
+            (
+              (clicks / impressions) *
+              100
+            ).toFixed(2)
           )
         : 0;
 
@@ -98,12 +123,14 @@ export async function GET() {
       revenue,
       advertisements,
     });
+
   } catch (error) {
     console.error(error);
 
     return NextResponse.json(
       {
-        error: "İstatistikler alinamadi.",
+        error:
+          "İstatistikler alınamadı.",
       },
       {
         status: 500,

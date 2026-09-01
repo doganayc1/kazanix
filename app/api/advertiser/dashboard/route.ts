@@ -10,48 +10,63 @@ export async function GET() {
       return unauthorized();
     }
 
-    if (!user.business) {
-      return NextResponse.json(
-        { error: "Reklam veren profili bulunamadı." },
-        { status: 404 }
-      );
-    }
+    const advertisements =
+      await prisma.advertisement.findMany({
+        where: {
+          OR: [
+            {
+              advertiserId: user.id,
+            },
+            {
+              advertiserId: null,
+              email: user.email,
+            },
+          ],
+        },
 
-    const advertisements = await prisma.advertisement.findMany({
-      where: {
-        email: user.email,
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
+        orderBy: {
+          createdAt: "desc",
+        },
+      });
 
     const total = advertisements.length;
 
-    const pending = advertisements.filter(
-      (item) => item.status === "PENDING"
-    ).length;
+    const pending =
+      advertisements.filter(
+        (item) =>
+          item.status === "PENDING"
+      ).length;
 
-    const approved = advertisements.filter(
-      (item) => item.status === "APPROVED"
-    ).length;
+    const approved =
+      advertisements.filter(
+        (item) =>
+          item.status === "APPROVED"
+      ).length;
 
-    const rejected = advertisements.filter(
-      (item) => item.status === "REJECTED"
-    ).length;
+    const rejected =
+      advertisements.filter(
+        (item) =>
+          item.status === "REJECTED"
+      ).length;
 
-    const revenue = advertisements.reduce(
-      (sum, item) => sum + Number(item.packagePrice || 0),
-      0
-    );
+    const revenue =
+      advertisements.reduce(
+        (sum, item) =>
+          sum +
+          Number(item.packagePrice || 0),
+        0
+      );
 
     return NextResponse.json({
       advertiser: {
         id: user.id,
         name: user.name,
         email: user.email,
-        companyName: user.business.companyName,
+        companyName:
+          user.business?.companyName ||
+          user.name,
       },
+
       statistics: {
         total,
         pending,
@@ -59,14 +74,24 @@ export async function GET() {
         rejected,
         revenue,
       },
+
       advertisements,
     });
+
   } catch (error) {
-    console.error("Advertiser dashboard error:", error);
+    console.error(
+      "Advertiser dashboard error:",
+      error
+    );
 
     return NextResponse.json(
-      { error: "Panel verileri alınamadı." },
-      { status: 500 }
+      {
+        error:
+          "Panel verileri alınamadı.",
+      },
+      {
+        status: 500,
+      }
     );
   }
 }

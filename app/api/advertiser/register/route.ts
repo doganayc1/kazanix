@@ -23,6 +23,17 @@ export async function POST(request: Request) {
       );
     }
 
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return NextResponse.json(
+        {
+          error: "Geçerli bir e-posta adresi girin.",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
     if (password.length < 6) {
       return NextResponse.json(
         {
@@ -56,29 +67,42 @@ export async function POST(request: Request) {
     const hashedPassword =
       await bcrypt.hash(password, 12);
 
-    const user =
-      await prisma.user.create({
-        data: {
-          name,
-          email,
-          password: hashedPassword,
-          role: "BUSINESS",
+    const user = await prisma.user.create({
+      data: {
+        name,
+        email,
+        password: hashedPassword,
+        role: "BUSINESS",
+
+        business: {
+          create: {
+            companyName: name,
+          },
         },
-      });
+      },
+
+      include: {
+        business: true,
+      },
+    });
 
     return NextResponse.json(
       {
         success: true,
+
         user: {
           id: user.id,
           name: user.name,
           email: user.email,
         },
+
+        business: user.business,
       },
       {
         status: 201,
       }
     );
+
   } catch (error) {
     console.error("Advertiser register error:", error);
 

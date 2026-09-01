@@ -2,6 +2,16 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getAdvertiser, unauthorized } from "../auth";
 
+function safePackagePrice(value: unknown) {
+  const number = Number(value ?? 0);
+
+  if (!Number.isFinite(number) || number < 0) {
+    return 0;
+  }
+
+  return Math.floor(number);
+}
+
 export async function GET() {
   try {
     const user = await getAdvertiser();
@@ -10,22 +20,37 @@ export async function GET() {
       return unauthorized();
     }
 
-    const advertisements = await prisma.advertisement.findMany({
-      where: {
-        email: user.email,
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
+    const advertisements =
+      await prisma.advertisement.findMany({
+        where: {
+          OR: [
+            {
+              advertiserId: user.id,
+            },
+            {
+              advertiserId: null,
+              email: user.email,
+            },
+          ],
+        },
+
+        orderBy: {
+          createdAt: "desc",
+        },
+      });
 
     return NextResponse.json(advertisements);
+
   } catch (error) {
-    console.error(error);
+    console.error("Advertiser advertisements GET error:", error);
 
     return NextResponse.json(
-      { error: "Reklamlar alınamadı." },
-      { status: 500 }
+      {
+        error: "Reklamlar alınamadı.",
+      },
+      {
+        status: 500,
+      }
     );
   }
 }
@@ -40,55 +65,128 @@ export async function POST(request: NextRequest) {
 
     if (!user.business) {
       return NextResponse.json(
-        { error: "Önce firma profilinizi oluşturun." },
-        { status: 400 }
+        {
+          error:
+            "Firma profiliniz bulunamadı.",
+        },
+        {
+          status: 400,
+        }
       );
     }
 
     const body = await request.json();
 
-    const title = body.title?.toString().trim();
-    const description = body.description?.toString().trim();
+    const title =
+      String(body.title || "").trim();
+
+    const description =
+      String(body.description || "").trim();
 
     if (!title || !description) {
       return NextResponse.json(
-        { error: "Reklam başlığı ve açıklaması zorunludur." },
-        { status: 400 }
+        {
+          error:
+            "Reklam başlığı ve açıklaması zorunludur.",
+        },
+        {
+          status: 400,
+        }
       );
     }
 
-    const advertisement = await prisma.advertisement.create({
-      data: {
-        company:
-          body.company?.toString().trim() ||
-          user.business.companyName,
+    if (
+      body.link &&
+      typeof body.link === "string"
+    ) {
+      try {
+        const url = new URL(body.link);
 
-        email: user.email,
+        if (
+          url.protocol !== "http:" &&
+          url.protocol !== "https:"
+        ) {
+          throw new Error();
+        }
 
-        title,
+      } catch {
+        return NextResponse.json(
+          {
+            error:
+              "Geçerli bir bağlantı adresi girin.",
+          },
+          {
+            status: 400,
+          }
+        );
+      }
+    }
 
-        description,
+    const advertisement =
+      await prisma.advertisement.create({
+        data: {
 
-        package:
-          body.package?.toString().trim() ||
-          "BASLANGIC",
+          advertiserId: user.id,
 
-        packagePrice:
-          Number(body.packagePrice || 0),
+          company:
+            String(
+              body.company ||
+              user.business.companyName
+            ).trim(),
 
-        status: "PENDING",
-      },
-    });
+          email: user.email,
 
-    return NextResponse.json(advertisement, {
-      status: 201,
-    });
-  } catch (error) {
-    console.error("Advertisement create error:", error);
+          title,
+
+          description,
+
+          image:
+            typeof body.image === "string" &&
+            body.image.trim()
+              ? body.image.trim()
+              : null,
+
+          link:
+            typeof body.link === "string" &&
+            body.link.trim()
+              ? body.link.trim()
+              : null,
+
+          package:
+            String(
+              body.package || "BASLANGIC"
+            ).trim(),
+
+          packagePrice:
+            safePackagePrice(
+              body.packagePrice
+            ),
+
+          status: "PENDING",
+        },
+      });
 
     return NextResponse.json(
-      { error: "Reklam oluşturulamadı." },
-      { status: 500 }
+      advertisement,
+      {
+        status: 201,
+      }
+    );
+
+  } catch (error) {
+    console.error(
+      "Advertisement create error:",
+      error
+    );
+
+    return NextResponse.json(
+      {
+        error:
+          "Reklam oluşturulamadı.",
+      },
+      {
+        status: 500,
+      }
     );
   }
 }
