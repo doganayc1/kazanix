@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import "./globals.css";
 
 const siteUrl =
@@ -18,16 +18,16 @@ export const metadata: Metadata = {
   },
 
   description:
-    "Kazanix ile markanızı dijital dünyada büyütün. Reklamlarınızı yayınlayın, hedef kitlenize ulaşın ve işletmenizi geliştirin.",
+    "Kazanix ile markanÄ±zÄ± dijital dünyada bÃ¼yÃ¼tÃ¼n. ReklamlarÄ±nÄ±zÄ± yayÄ±nlayÄ±n, hedef kitlenize ulaÅŸÄ±n ve iÅŸletmenizi geliÅŸtirin.",
 
   keywords: [
     "Kazanix",
     "dijital reklam",
     "online reklam",
     "reklam platformu",
-    "marka tanıtımı",
+    "marka tanÄ±tÄ±mÄ±",
     "kampanya",
-    "internet reklamı",
+    "internet reklamÄ±",
   ],
 
   authors: [
@@ -44,7 +44,7 @@ export const metadata: Metadata = {
       "Kazanix | Dijital Reklam Platformu",
 
     description:
-      "Markanızı doğru kitleyle buluşturun. Kazanix ile dijital reklam fırsatlarını keşfedin.",
+      "Markanızı doÄŸru kitleyle buluÅŸturun. Kazanix ile dijital reklam fÄ±rsatlarÄ±nÄ± keÅŸfedin.",
 
     url: siteUrl,
 
@@ -69,7 +69,7 @@ export const metadata: Metadata = {
       "Kazanix | Dijital Reklam Platformu",
 
     description:
-      "Dijital reklamlarınızı yönetin ve markanızı büyütün.",
+      "Dijital reklamlarınızı yÃ¶netin ve markanÄ±zÄ± bÃ¼yÃ¼tÃ¼n.",
 
   },
 
