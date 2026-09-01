@@ -14,21 +14,21 @@ export const metadata: Metadata = {
   },
 
   description:
-    "Kazanix ile markanÄ±zÄ± ve reklamlarÄ±nÄ±zÄ± dijital dÃ¼nyada daha fazla kiÅŸiye ulaÅŸtÄ±rÄ±n.",
+    "Kazanix ile markanızı ve reklamlarınızı dijital dünyada daha fazla kişiye ulaştırın.",
 
   keywords: [
     "reklam",
     "dijital reklam",
     "online reklam",
     "kampanya",
-    "marka tanÄ±tÄ±mÄ±",
+    "marka tanıtımı",
     "Kazanix",
   ],
 
   openGraph: {
     title: "Kazanix | Dijital Reklam Platformu",
     description:
-      "MarkanÄ±zÄ± ve reklamlarÄ±nÄ±zÄ± daha fazla kiÅŸiye ulaÅŸtÄ±rÄ±n.",
+      "Markanızı ve reklamlarınızı daha fazla kişiye ulaştırın.",
     url: siteUrl,
     siteName: "Kazanix",
     locale: "tr_TR",
@@ -39,7 +39,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Kazanix | Dijital Reklam Platformu",
     description:
-      "MarkanÄ±zÄ± ve reklamlarÄ±nÄ±zÄ± daha fazla kiÅŸiye ulaÅŸtÄ±rÄ±n.",
+      "Markanızı ve reklamlarınızı daha fazla kişiye ulaştırın.",
   },
 
   alternates: {

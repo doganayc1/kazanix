@@ -7,7 +7,7 @@ const categories = [
   "Teknoloji",
   "Finans",
   "Mobil Uygulama",
-  "Egitim",
+  "Eğitim",
   "Diger",
 ];
 
@@ -44,9 +44,9 @@ export default function Home() {
 
           <div className={`nav-links ${menuOpen ? "show" : ""}`}>
             <a href="#anasayfa">Ana Sayfa</a>
-            <a href="#nasil-calisir">Nasil Calisir?</a>
+            <a href="#nasil-calisir">Nasıl Çalışır?</a>
             <a href="#reklamlar">Reklamlar</a>
-            <a href="#iletisim">Iletisim</a>
+            <a href="#iletisim">İletişim</a>
             <button onClick={scrollToContact}>Reklam Ver</button>
           </div>
         </div>
@@ -57,20 +57,20 @@ export default function Home() {
           <div className="hero-content">
             <div className="badge">
               <span></span>
-              YENI NESIL REKLAM PLATFORMU
+              YENİ NESİL REKLAM PLATFORMU
             </div>
 
             <h1>
-              Markanizi
+              Markanızı
               <br />
-              <strong>Dogru Kitleyle</strong>
+              <strong>Doğru Kitleyle</strong>
               <br />
-              Bulusturun.
+              Buluşturun.
             </h1>
 
             <p>
-              Kazanix ile markanizi daha fazla kisiye ulastirin.
-              Dijital reklam alanlarinizi yonetin ve yeni musteri
+              Kazanix ile markanızı daha fazla kişiye ulaştırın.
+              Dijital reklam alanlarinizi yönetin ve yeni müşteri
               potansiyellerine ulasin.
             </p>
 
@@ -108,12 +108,12 @@ export default function Home() {
             <div className="dashboard">
               <div className="dash-top">
                 <span className="mini-logo">K</span>
-                <span>Reklam Performansi</span>
+                <span>Reklam Performansı</span>
                 <span className="live">CANLI</span>
               </div>
 
               <div className="chart-card">
-                <span>Toplam Goruntulenme</span>
+                <span>Toplam Görüntülenme</span>
                 <strong>128.4K</strong>
                 <small>+24.8% bu ay</small>
                 <div className="chart">
@@ -124,7 +124,7 @@ export default function Home() {
 
               <div className="dash-bottom">
                 <div>
-                  <span>Tiklanma</span>
+                  <span>Tıklanma</span>
                   <strong>12.8K</strong>
                 </div>
                 <div>
@@ -154,10 +154,10 @@ export default function Home() {
         <div className="container">
           <div className="section-heading">
             <span>NASIL CALISIR?</span>
-            <h2>Reklaminizi dakikalar icinde yayinlayin.</h2>
+            <h2>Reklamınızı dakikalar içinde yayınlayın.</h2>
             <p>
-              Karmaşık sÃ¼reÃ§ler olmadan markanızı ve kampanyanÄ±zÄ±
-              potansiyel müşterilerle buluÅŸturun.
+              Karmaşık süreçler olmadan markanızı ve kampanyanızı
+              potansiyel müşterilerle buluşturun.
             </p>
           </div>
 
@@ -167,25 +167,25 @@ export default function Home() {
    <div className="step-icon">✦</div>
               <h3>Reklamınızı Oluşturun</h3>
               <p>
-                Markanizi, kampanyanizi ve hedef kitlenizi belirleyin.
+                Markanızı, kampanyanızı ve hedef kitlenizi belirleyin.
               </p>
             </article>
 
             <article className="step-card featured">
               <div className="step-number">02</div>
               <div className="step-icon">◉</div>
-              <h3>Hedef Kitlenize Ulasin</h3>
+              <h3>Hedef Kitlenize Ulaşın</h3>
               <p>
-                Reklaminiz ilgili kullanicilar tarafindan kesfedilsin.
+                Reklamınız ilgili kullanicilar tarafindan keşfedilsin.
               </p>
             </article>
 
             <article className="step-card">
               <div className="step-number">03</div>
               <div className="step-icon">↗</div>
-              <h3>Sonuclari Takip Edin</h3>
+              <h3>Sonuçları Takip Edin</h3>
               <p>
-                Performans verilerini takip edin ve reklamlarinizi gelistirin.
+                Performans verilerini takip edin ve reklamlarınızı geliştirin.
               </p>
             </article>
           </div>
@@ -196,8 +196,8 @@ export default function Home() {
         <div className="container">
           <div className="ads-header">
             <div>
-              <span>ONE CIKANLAR</span>
-              <h2>Yeni Firsatlari Kesfedin.</h2>
+              <span>ÖNE ÇIKANLAR</span>
+              <h2>Yeni Fırsatları Keşfedin.</h2>
             </div>
             <button className="secondary-btn" onClick={scrollToContact}>
               Siz de Reklam Ver
@@ -212,9 +212,9 @@ export default function Home() {
         <div className="container cta-box">
           <div>
             <span>REKLAMINIZI YAYINLAMAYA HAZIR MISINIZ?</span>
-            <h2>Markanizin hikayesi daha fazla kisiye ulassin.</h2>
+            <h2>Markanızın hikayesi daha fazla kişiye ulassin.</h2>
             <p>
-              Kazanix ile dijital gorunurlugunuzu guclendirin.
+              Kazanix ile dijital görünürlüğünüzü güçlendirin.
             </p>
           </div>
 
@@ -222,7 +222,7 @@ export default function Home() {
             className="primary-btn"
             href="/reklam-ver"
           >
-            Bizimle Iletisime Gec
+            Bizimle İletişime Gec
             <span>→</span>
           </a>
         </div>
@@ -234,19 +234,19 @@ export default function Home() {
             <a href="#" className="logo">
               KAZAN<span>IX</span>
             </a>
-            <p>Dijital reklam ve marka gorunurlugu platformu.</p>
+            <p>Dijital reklam ve marka görünürlüğü platformu.</p>
           </div>
 
           <div className="footer-links">
             <a href="#anasayfa">Ana Sayfa</a>
-            <a href="#nasil-calisir">Nasil Calisir?</a>
+            <a href="#nasil-calisir">Nasıl Çalışır?</a>
             <a href="#reklamlar">Reklamlar</a>
-            <a href="#iletisim">Iletisim</a>
+            <a href="#iletisim">İletişim</a>
           </div>
         </div>
 
         <div className="container copyright">
-          © 2026 Kazanix. Tum haklari saklidir.
+          © 2026 Kazanix. Tüm hakları saklıdır.
         </div>
       </footer>
     </main>
