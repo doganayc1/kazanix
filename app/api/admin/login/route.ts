@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server";
-import { ADMIN_COOKIE_NAME } from "@/lib/admin-auth";
+import {
+  ADMIN_COOKIE_NAME,
+  createAdminSession,
+} from "@/lib/admin-auth";
 
 export async function POST(request: Request) {
   try {
@@ -7,14 +10,14 @@ export async function POST(request: Request) {
 
     if (!process.env.ADMIN_PASSWORD) {
       return NextResponse.json(
-        { error: "ADMIN_PASSWORD ayarlanmamış." },
+        { error: "ADMIN_PASSWORD ayarlanmamis." },
         { status: 500 }
       );
     }
 
     if (!password || password !== process.env.ADMIN_PASSWORD) {
       return NextResponse.json(
-        { error: "Hatalı şifre." },
+        { error: "Hatali sifre." },
         { status: 401 }
       );
     }
@@ -25,7 +28,7 @@ export async function POST(request: Request) {
 
     response.cookies.set({
       name: ADMIN_COOKIE_NAME,
-      value: process.env.ADMIN_PASSWORD,
+      value: createAdminSession(),
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
@@ -36,7 +39,7 @@ export async function POST(request: Request) {
     return response;
   } catch {
     return NextResponse.json(
-      { error: "Giriş yapılamadı." },
+      { error: "Giris yapilamadi." },
       { status: 500 }
     );
   }
