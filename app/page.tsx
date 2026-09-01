@@ -1,12 +1,12 @@
 ﻿"use client";
 
-import Advertisements from "./advertisements";
 import { useState } from "react";
+import Advertisements from "./advertisements";
 
 export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const scrollToAds = () => {
+  const scrollAds = () => {
     document
       .getElementById("reklamlar")
       ?.scrollIntoView({ behavior: "smooth" });
@@ -30,13 +30,11 @@ export default function Home() {
           </button>
 
           <div className={`nav-links ${menuOpen ? "show" : ""}`}>
-            <a href="#anasayfa">Ana Sayfa</a>
+            <a href="/">Ana Sayfa</a>
             <a href="#nasil-calisir">Nasıl Çalışır?</a>
             <a href="#reklamlar">Reklamlar</a>
             <a href="/reklam-ver">Reklam Ver</a>
-            <a href="/reklamveren/giris">
-              Giriş Yap
-            </a>
+            <a href="/reklamveren/giris">Giriş</a>
           </div>
 
         </div>
@@ -51,7 +49,7 @@ export default function Home() {
 
             <div className="badge">
               <span></span>
-              YENİ NESİL DİJİTAL REKLAM PLATFORMU
+              YENİ NESİL REKLAM PLATFORMU
             </div>
 
 
@@ -65,9 +63,9 @@ export default function Home() {
 
 
             <p>
-              Kazanix ile reklamınızı yayınlayın,
-              markanızı büyütün ve yeni müşterilere
-              ulaşın.
+              Kazanix ile dijital reklamlarınızı yönetin,
+              markanızı büyütün ve potansiyel müşterilerinize
+              daha hızlı ulaşın.
             </p>
 
 
@@ -77,14 +75,13 @@ export default function Home() {
                 href="/reklam-ver"
                 className="primary-btn"
               >
-                Reklam Vermeye Başla
-                <span>→</span>
+                Reklam Vermeye Başla →
               </a>
 
 
               <button
                 className="secondary-btn"
-                onClick={scrollToAds}
+                onClick={scrollAds}
               >
                 Reklamları Keşfet
               </button>
@@ -106,7 +103,7 @@ export default function Home() {
 
               <div>
                 <strong>%100</strong>
-                <span>Kontrollü Sistem</span>
+                <span>Kontrol</span>
               </div>
 
             </div>
@@ -115,11 +112,8 @@ export default function Home() {
           </div>
 
 
+
           <div className="hero-card">
-
-            <div className="glow glow-one"></div>
-            <div className="glow glow-two"></div>
-
 
             <div className="dashboard">
 
@@ -130,7 +124,7 @@ export default function Home() {
                 </span>
 
                 <span>
-                  Reklam Performansı
+                  Reklam Paneli
                 </span>
 
                 <span className="live">
@@ -143,7 +137,7 @@ export default function Home() {
               <div className="chart-card">
 
                 <span>
-                  Toplam Görüntülenme
+                  Görüntülenme
                 </span>
 
                 <strong>
@@ -151,20 +145,17 @@ export default function Home() {
                 </strong>
 
                 <small>
-                  +24.8% büyüme
+                  Bu ay +24.8%
                 </small>
 
 
                 <div className="chart">
-
                   <i></i>
                   <i></i>
                   <i></i>
                   <i></i>
                   <i></i>
                   <i></i>
-                  <i></i>
-
                 </div>
 
               </div>
@@ -173,32 +164,19 @@ export default function Home() {
               <div className="dash-bottom">
 
                 <div>
-                  <span>
-                    Tıklanma
-                  </span>
-
-                  <strong>
-                    12.8K
-                  </strong>
+                  <span>Tıklanma</span>
+                  <strong>12.8K</strong>
                 </div>
 
 
                 <div>
-                  <span>
-                    Dönüşüm
-                  </span>
-
-                  <strong>
-                    %8.4
-                  </strong>
+                  <span>Dönüşüm</span>
+                  <strong>%8.4</strong>
                 </div>
-
 
               </div>
 
-
             </div>
-
 
           </div>
 
@@ -206,3 +184,205 @@ export default function Home() {
         </div>
 
       </section>
+
+
+
+      <section
+        className="section"
+        id="nasil-calisir"
+      >
+
+        <div className="container">
+
+          <div className="section-heading">
+
+            <span>
+              NASIL ÇALIŞIR?
+            </span>
+
+            <h2>
+              Reklamınızı dakikalar içinde yayınlayın.
+            </h2>
+
+            <p>
+              Basit adımlarla reklam oluşturun,
+              hedef kitlenize ulaşın ve sonuçları takip edin.
+            </p>
+
+          </div>
+
+
+
+          <div className="steps">
+
+
+            <article className="step-card">
+
+              <div className="step-number">
+                01
+              </div>
+
+              <h3>
+                Reklam Oluşturun
+              </h3>
+
+              <p>
+                Markanızı ve kampanyanızı sisteme ekleyin.
+              </p>
+
+            </article>
+
+
+
+            <article className="step-card featured">
+
+              <div className="step-number">
+                02
+              </div>
+
+              <h3>
+                Yayına Alın
+              </h3>
+
+              <p>
+                Onay sonrası reklamınız kullanıcılarla buluşsun.
+              </p>
+
+            </article>
+
+
+
+            <article className="step-card">
+
+              <div className="step-number">
+                03
+              </div>
+
+              <h3>
+                Sonuçları İzleyin
+              </h3>
+
+              <p>
+                Görüntülenme ve performansı takip edin.
+              </p>
+
+            </article>
+
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+
+      <section
+        className="ads-section"
+        id="reklamlar"
+      >
+
+        <div className="container">
+
+          <div className="ads-header">
+
+            <div>
+
+              <span>
+                ÖNE ÇIKANLAR
+              </span>
+
+              <h2>
+                Yeni Reklam Fırsatları
+              </h2>
+
+            </div>
+
+
+            <a
+              href="/reklam-ver"
+              className="secondary-btn"
+            >
+              Siz de Reklam Verin
+            </a>
+
+          </div>
+
+
+          <Advertisements />
+
+
+        </div>
+
+      </section>
+
+
+
+      <section className="cta">
+
+        <div className="container cta-box">
+
+          <div>
+
+            <span>
+              MARKANIZI BÜYÜTMEYE HAZIR MISINIZ?
+            </span>
+
+            <h2>
+              Reklamınızı bugün yayınlayın.
+            </h2>
+
+            <p>
+              Kazanix ile dijital görünürlüğünüzü artırın.
+            </p>
+
+          </div>
+
+
+          <a
+            href="/reklam-ver"
+            className="primary-btn"
+          >
+            Reklam Ver →
+          </a>
+
+
+        </div>
+
+      </section>
+
+
+
+      <footer>
+
+        <div className="container footer-inner">
+
+          <div>
+
+            <a href="/" className="logo">
+              KAZAN<span>IX</span>
+            </a>
+
+            <p>
+              Dijital reklam platformu.
+            </p>
+
+          </div>
+
+
+        </div>
+
+
+        <div className="container copyright">
+
+          © 2026 Kazanix. Tüm hakları saklıdır.
+
+        </div>
+
+
+      </footer>
+
+
+    </main>
+  );
+}
