@@ -1,19 +1,22 @@
-﻿import type { MetadataRoute } from "next"
-import { siteUrl } from "@/lib/site-url"
+﻿import type { MetadataRoute } from "next";
+import { siteUrl } from "@/lib/site-url";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  return [
-    {
-      url: siteUrl,
-      lastModified: new Date(),
-      changeFrequency: "weekly",
-      priority: 1,
-    },
-    {
-      url: `${siteUrl}/reklam-veren`,
-      lastModified: new Date(),
-      changeFrequency: "weekly",
-      priority: 0.8,
-    },
-  ]
+
+  const pages = [
+    "",
+    "/reklam-veren",
+    "/reklamveren",
+    "/reklamveren/giris",
+    "/reklamveren/kayit",
+    "/reklam-ver",
+  ];
+
+  return pages.map((page) => ({
+    url: `${siteUrl}${page}`,
+    lastModified: new Date(),
+    changeFrequency: "weekly",
+    priority: page === "" ? 1 : 0.8,
+  }));
+
 }
