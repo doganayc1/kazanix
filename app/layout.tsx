@@ -5,9 +5,11 @@ const siteUrl =
   process.env.NEXT_PUBLIC_APP_URL &&
   /^https?:\/\//i.test(process.env.NEXT_PUBLIC_APP_URL)
     ? process.env.NEXT_PUBLIC_APP_URL
-    : "https://kazanix-tr-wizzle.vercel.app";
+    : "https://kazanix-51h5.vercel.app";
+
 
 export const metadata: Metadata = {
+
   metadataBase: new URL(siteUrl),
 
   title: {
@@ -16,47 +18,101 @@ export const metadata: Metadata = {
   },
 
   description:
-    "Kazanix ile markanızı ve reklamlarınızı dijital dünyada daha fazla kişiye ulaştırın.",
+    "Kazanix ile markanızı dijital dünyada büyütün. Reklamlarınızı yayınlayın, hedef kitlenize ulaşın ve işletmenizi geliştirin.",
 
   keywords: [
-    "reklam",
+    "Kazanix",
     "dijital reklam",
     "online reklam",
-    "kampanya",
+    "reklam platformu",
     "marka tanıtımı",
-    "Kazanix",
+    "kampanya",
+    "internet reklamı",
   ],
 
+  authors: [
+    {
+      name: "Kazanix",
+    },
+  ],
+
+  creator: "Kazanix",
+
   openGraph: {
-    title: "Kazanix | Dijital Reklam Platformu",
+
+    title:
+      "Kazanix | Dijital Reklam Platformu",
+
     description:
-      "Markanızı ve reklamlarınızı daha fazla kişiye ulaştırın.",
+      "Markanızı doğru kitleyle buluşturun. Kazanix ile dijital reklam fırsatlarını keşfedin.",
+
     url: siteUrl,
-    siteName: "Kazanix",
-    locale: "tr_TR",
-    type: "website",
+
+    siteName:
+      "Kazanix",
+
+    locale:
+      "tr_TR",
+
+    type:
+      "website",
+
   },
+
 
   twitter: {
-    card: "summary_large_image",
-    title: "Kazanix | Dijital Reklam Platformu",
+
+    card:
+      "summary_large_image",
+
+    title:
+      "Kazanix | Dijital Reklam Platformu",
+
     description:
-      "Markanızı ve reklamlarınızı daha fazla kişiye ulaştırın.",
+      "Dijital reklamlarınızı yönetin ve markanızı büyütün.",
+
   },
 
-  alternates: {
-    canonical: "/",
+
+  robots: {
+
+    index:
+      true,
+
+    follow:
+      true,
+
   },
+
+
+  alternates: {
+
+    canonical:
+      "/",
+
+  },
+
 };
+
 
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+
   return (
+
     <html lang="tr">
-      <body>{children}</body>
+
+      <body>
+
+        {children}
+
+      </body>
+
     </html>
+
   );
+
 }
