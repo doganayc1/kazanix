@@ -3,7 +3,7 @@ import "./globals.css";
 
 const siteUrl =
   process.env.NEXT_PUBLIC_APP_URL ||
-  "https://kazanix-51h5.vercel.app";
+  "/";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -14,21 +14,21 @@ export const metadata: Metadata = {
   },
 
   description:
-    "Kazanix ile markanızı ve reklamlarınızı dijital dünyada daha fazla kişiye ulaştırın.",
+    "Kazanix ile markanÄ±zÄ± ve reklamlarÄ±nÄ±zÄ± dijital dÃ¼nyada daha fazla kiÅŸiye ulaÅŸtÄ±rÄ±n.",
 
   keywords: [
     "reklam",
     "dijital reklam",
     "online reklam",
     "kampanya",
-    "marka tanıtımı",
+    "marka tanÄ±tÄ±mÄ±",
     "Kazanix",
   ],
 
   openGraph: {
     title: "Kazanix | Dijital Reklam Platformu",
     description:
-      "Markanızı ve reklamlarınızı daha fazla kişiye ulaştırın.",
+      "MarkanÄ±zÄ± ve reklamlarÄ±nÄ±zÄ± daha fazla kiÅŸiye ulaÅŸtÄ±rÄ±n.",
     url: siteUrl,
     siteName: "Kazanix",
     locale: "tr_TR",
@@ -39,7 +39,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Kazanix | Dijital Reklam Platformu",
     description:
-      "Markanızı ve reklamlarınızı daha fazla kişiye ulaştırın.",
+      "MarkanÄ±zÄ± ve reklamlarÄ±nÄ±zÄ± daha fazla kiÅŸiye ulaÅŸtÄ±rÄ±n.",
   },
 
   alternates: {

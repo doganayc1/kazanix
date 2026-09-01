@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+﻿import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
 const requestLog = new Map<string, number[]>();
@@ -55,14 +55,30 @@ export async function GET() {
       await prisma.advertisement.findMany({
         where: {
           status: "APPROVED",
-          OR: [
+          AND: [
             {
-              expiresAt: null,
+              OR: [
+                {
+                  startsAt: null,
+                },
+                {
+                  startsAt: {
+                    lte: now,
+                  },
+                },
+              ],
             },
             {
-              expiresAt: {
-                gt: now,
-              },
+              OR: [
+                {
+                  expiresAt: null,
+                },
+                {
+                  expiresAt: {
+                    gt: now,
+                  },
+                },
+              ],
             },
           ],
         },
@@ -78,7 +94,7 @@ export async function GET() {
 
     return NextResponse.json(advertisements);
   } catch (error) {
-    console.error(error);
+    console.error("Advertisement GET error:", error);
 
     return NextResponse.json(
       { error: "Reklamlar alınamadı." },
@@ -115,7 +131,6 @@ export async function POST(request: NextRequest) {
       formStartedAt,
     } = body;
 
-    // Honeypot: gerçek kullanıcı bu alanı doldurmaz
     if (website && String(website).trim() !== "") {
       return NextResponse.json(
         { error: "Spam tespit edildi." },
@@ -123,7 +138,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Çok hızlı gönderimleri engelle
     if (formStartedAt) {
       const startedAt = Number(formStartedAt);
       const now = Date.now();
@@ -155,14 +169,23 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const companyValue = String(company).trim();
+    const emailValue = String(email).trim().toLowerCase();
+    const titleValue = String(title).trim();
+    const descriptionValue = String(description).trim();
+    const packageValue = String(selectedPackage).trim();
+
     if (
-      company.length > 100 ||
-      title.length > 150 ||
-      description.length > 3000 ||
-      email.length > 150
+      companyValue.length > 100 ||
+      titleValue.length > 150 ||
+      descriptionValue.length > 3000 ||
+      emailValue.length > 150
     ) {
       return NextResponse.json(
-        { error: "Girilen bilgiler izin verilen sınırı aşıyor." },
+        {
+          error:
+            "Girilen bilgiler izin verilen sınırı aşıyor.",
+        },
         { status: 400 }
       );
     }
@@ -170,16 +193,28 @@ export async function POST(request: NextRequest) {
     const emailRegex =
       /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    if (!emailRegex.test(email)) {
+    if (!emailRegex.test(emailValue)) {
       return NextResponse.json(
         { error: "Geçerli bir e-posta adresi girin." },
         { status: 400 }
       );
     }
 
+    let imageValue: string | null = null;
+    let linkValue: string | null = null;
+
     if (link) {
       try {
-        new URL(link);
+        const parsedLink = new URL(String(link).trim());
+
+        if (
+          parsedLink.protocol !== "http:" &&
+          parsedLink.protocol !== "https:"
+        ) {
+          throw new Error("Invalid protocol");
+        }
+
+        linkValue = parsedLink.toString();
       } catch {
         return NextResponse.json(
           { error: "Geçerli bir bağlantı adresi girin." },
@@ -190,10 +225,22 @@ export async function POST(request: NextRequest) {
 
     if (image) {
       try {
-        new URL(image);
+        const parsedImage = new URL(String(image).trim());
+
+        if (
+          parsedImage.protocol !== "http:" &&
+          parsedImage.protocol !== "https:"
+        ) {
+          throw new Error("Invalid protocol");
+        }
+
+        imageValue = parsedImage.toString();
       } catch {
         return NextResponse.json(
-          { error: "Geçerli bir görsel bağlantısı girin." },
+          {
+            error:
+              "Geçerli bir görsel bağlantısı girin.",
+          },
           { status: 400 }
         );
       }
@@ -202,17 +249,13 @@ export async function POST(request: NextRequest) {
     const advertisement =
       await prisma.advertisement.create({
         data: {
-          company: String(company).trim(),
-          email: String(email).trim().toLowerCase(),
-          title: String(title).trim(),
-          description: String(description).trim(),
-          image: image
-            ? String(image).trim()
-            : null,
-          link: link
-            ? String(link).trim()
-            : null,
-          package: String(selectedPackage),
+          company: companyValue,
+          email: emailValue,
+          title: titleValue,
+          description: descriptionValue,
+          image: imageValue,
+          link: linkValue,
+          package: packageValue,
           packagePrice: 0,
           status: "PENDING",
         },
@@ -225,7 +268,7 @@ export async function POST(request: NextRequest) {
       }
     );
   } catch (error) {
-    console.error(error);
+    console.error("Advertisement POST error:", error);
 
     return NextResponse.json(
       { error: "Reklam oluşturulamadı." },

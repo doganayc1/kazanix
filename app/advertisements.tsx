@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 
@@ -15,31 +15,84 @@ type Advertisement = {
 export default function Advertisements() {
   const [advertisements, setAdvertisements] = useState<Advertisement[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch("/api/advertisements")
-      .then((response) => response.json())
-      .then((data) => {
-        if (Array.isArray(data)) {
+    let cancelled = false;
+
+    async function loadAdvertisements() {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const response = await fetch("/api/advertisements", {
+          method: "GET",
+          cache: "no-store",
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(
+            typeof data?.error === "string"
+              ? data.error
+              : "Reklamlar yüklenemedi."
+          );
+        }
+
+        if (!Array.isArray(data)) {
+          throw new Error("API geçersiz reklam verisi döndürdü.");
+        }
+
+        if (!cancelled) {
           setAdvertisements(data);
         }
-      })
-      .catch(() => {
-        setAdvertisements([]);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
+      } catch (error) {
+        console.error("Advertisement loading error:", error);
+
+        if (!cancelled) {
+          setAdvertisements([]);
+          setError(
+            error instanceof Error
+              ? error.message
+              : "Reklamlar yüklenirken bir hata oluştu."
+          );
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    }
+
+    loadAdvertisements();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   if (loading) {
-    return <p className="ads-loading">Reklamlar yükleniyor...</p>;
+    return (
+      <p className="ads-loading">
+        Reklamlar yükleniyor...
+      </p>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="ads-loading">
+        <p>Reklamlar yüklenemedi.</p>
+        <small>{error}</small>
+      </div>
+    );
   }
 
   if (advertisements.length === 0) {
     return (
       <p className="ads-loading">
-        Henuz yayinlanmis reklam bulunmuyor.
+        Henüz yayınlanmış reklam bulunmuyor.
       </p>
     );
   }
@@ -80,11 +133,11 @@ export default function Advertisements() {
                 rel="noopener noreferrer"
                 className="ad-link"
               >
-                Detaylari Gor →
+                Detayları Gör →
               </a>
             ) : (
               <span className="ad-link">
-                Detaylari Gor →
+                Detayları Gör →
               </span>
             )}
           </div>

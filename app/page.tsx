@@ -128,7 +128,7 @@ export default function Home() {
                   <strong>12.8K</strong>
                 </div>
                 <div>
-                  <span>Dönusum</span>
+                  <span>Dönüşüm</span>
                   <strong>%8.4</strong>
                 </div>
               </div>
@@ -156,8 +156,8 @@ export default function Home() {
             <span>NASIL CALISIR?</span>
             <h2>Reklaminizi dakikalar icinde yayinlayin.</h2>
             <p>
-              Karmaşık süreçler olmadan markanızı ve kampanyanızı
-              potansiyel müşterilerle buluşturun.
+              Karmaşık sÃ¼reÃ§ler olmadan markanızı ve kampanyanÄ±zÄ±
+              potansiyel müşterilerle buluÅŸturun.
             </p>
           </div>
 
@@ -165,7 +165,7 @@ export default function Home() {
             <article className="step-card">
               <div className="step-number">01</div>
    <div className="step-icon">✦</div>
-              <h3>Reklaminizi Oluşturun</h3>
+              <h3>Reklamınızı Oluşturun</h3>
               <p>
                 Markanizi, kampanyanizi ve hedef kitlenizi belirleyin.
               </p>
@@ -252,7 +252,3 @@ export default function Home() {
     </main>
   );
 }
-
-
-
-
