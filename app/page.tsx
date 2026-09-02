@@ -373,6 +373,13 @@ export default function Home() {
         </div>
 
 
+        <div className="container footer-links">
+          <a href="/gizlilik-politikasi">Gizlilik Politikası</a>
+          <a href="/kvkk">KVKK</a>
+          <a href="/kullanim-sartlari">Kullanım Şartları</a>
+          <a href="/iletisim">İletişim</a>
+        </div>
+
         <div className="container copyright">
 
           © 2026 Kazanix. Tüm hakları saklıdır.
@@ -386,4 +393,5 @@ export default function Home() {
     </main>
   );
 }
+
 
