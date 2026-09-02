@@ -20,3 +20,8 @@ yarn-error.log*
 .DS_Store
 Thumbs.db
 .repair-backup-*
+# Kazanix local backup files
+_payment_backup_*/
+*.backup.*
+_kazanix_backup/
+_route_fix_backup/
