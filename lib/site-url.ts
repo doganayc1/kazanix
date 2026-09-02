@@ -1,1 +1,1 @@
-﻿export const siteUrl = "https://kazanix-51h5.vercel.app"
+﻿export const siteUrl = "https://kazanix-51h5.vercel.app";

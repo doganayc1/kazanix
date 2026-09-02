@@ -2,21 +2,23 @@
 import { siteUrl } from "@/lib/site-url";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-
   const pages = [
     "",
+    "/reklam-ver",
     "/reklam-veren",
     "/reklamveren",
-    "/reklamveren/giris",
-    "/reklamveren/kayit",
-    "/reklam-ver",
+    "/reklam-veren/giris",
+    "/reklam-veren/kayit",
+    "/gizlilik-politikasi",
+    "/kvkk",
+    "/kullanim-sartlari",
+    "/iletisim",
   ];
 
   return pages.map((page) => ({
     url: `${siteUrl}${page}`,
     lastModified: new Date(),
-    changeFrequency: "weekly",
-    priority: page === "" ? 1 : 0.8,
+    changeFrequency: page === "" ? "weekly" : "monthly",
+    priority: page === "" ? 1 : 0.7,
   }));
-
 }

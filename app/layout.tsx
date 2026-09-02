@@ -1,15 +1,9 @@
 ﻿import type { Metadata } from "next";
 import "./globals.css";
 
-const siteUrl =
-  process.env.NEXT_PUBLIC_APP_URL &&
-  /^https?:\/\//i.test(process.env.NEXT_PUBLIC_APP_URL)
-    ? process.env.NEXT_PUBLIC_APP_URL
-    : "https://kazanix-51h5.vercel.app";
-
+const siteUrl = "https://kazanix-51h5.vercel.app";
 
 export const metadata: Metadata = {
-
   metadataBase: new URL(siteUrl),
 
   title: {
@@ -18,16 +12,16 @@ export const metadata: Metadata = {
   },
 
   description:
-    "Kazanix ile markanÄ±zÄ± dijital dünyada bÃ¼yÃ¼tÃ¼n. ReklamlarÄ±nÄ±zÄ± yayÄ±nlayÄ±n, hedef kitlenize ulaÅŸÄ±n ve iÅŸletmenizi geliÅŸtirin.",
+    "Kazanix ile markanızı dijital dünyada büyütün. Reklamlarınızı yayınlayın, hedef kitlenize ulaşın ve işletmenizi geliştirin.",
 
   keywords: [
     "Kazanix",
     "dijital reklam",
     "online reklam",
     "reklam platformu",
-    "marka tanÄ±tÄ±mÄ±",
+    "marka tanıtımı",
     "kampanya",
-    "internet reklamÄ±",
+    "internet reklamı",
   ],
 
   authors: [
@@ -39,81 +33,40 @@ export const metadata: Metadata = {
   creator: "Kazanix",
 
   openGraph: {
-
-    title:
-      "Kazanix | Dijital Reklam Platformu",
-
+    title: "Kazanix | Dijital Reklam Platformu",
     description:
-      "Markanızı doÄŸru kitleyle buluÅŸturun. Kazanix ile dijital reklam fÄ±rsatlarÄ±nÄ± keÅŸfedin.",
-
+      "Markanızı doğru kitleyle buluşturun. Kazanix ile dijital reklam fırsatlarını keşfedin.",
     url: siteUrl,
-
-    siteName:
-      "Kazanix",
-
-    locale:
-      "tr_TR",
-
-    type:
-      "website",
-
+    siteName: "Kazanix",
+    locale: "tr_TR",
+    type: "website",
   },
-
 
   twitter: {
-
-    card:
-      "summary_large_image",
-
-    title:
-      "Kazanix | Dijital Reklam Platformu",
-
+    card: "summary_large_image",
+    title: "Kazanix | Dijital Reklam Platformu",
     description:
-      "Dijital reklamlarınızı yÃ¶netin ve markanÄ±zÄ± bÃ¼yÃ¼tÃ¼n.",
-
+      "Dijital reklamlarınızı yönetin ve markanızı büyütün.",
   },
-
 
   robots: {
-
-    index:
-      true,
-
-    follow:
-      true,
-
+    index: true,
+    follow: true,
   },
-
 
   alternates: {
-
-    canonical:
-      "/",
-
+    canonical: "/",
   },
-
 };
-
 
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-
   return (
-
     <html lang="tr">
-
-      <body>
-
-        {children}
-
-      </body>
-
+      <body>{children}</body>
     </html>
-
   );
-
 }
-
