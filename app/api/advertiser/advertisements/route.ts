@@ -1,16 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getAdvertiser, unauthorized } from "../auth";
-
-function safePackagePrice(value: unknown) {
-  const number = Number(value ?? 0);
-
-  if (!Number.isFinite(number) || number < 0) {
-    return 0;
-  }
-
-  return Math.floor(number);
-}
+import { getAdPackage } from "@/lib/ad-packages";
 
 export async function GET() {
   try {
@@ -157,10 +148,7 @@ export async function POST(request: NextRequest) {
               body.package || "BASLANGIC"
             ).trim(),
 
-          packagePrice:
-            safePackagePrice(
-              body.packagePrice
-            ),
+          packagePrice: getAdPackage(String(body.package || "BASLANGIC").trim()).price,
 
           status: "PENDING",
         },

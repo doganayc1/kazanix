@@ -23,12 +23,6 @@ export default function NewAdvertisementPage() {
     setLoading(true);
     setError("");
 
-    const price =
-      packageName === "BASLANGIC"
-        ? 499
-        : packageName === "STANDART"
-          ? 1499
-          : 2999;
 
     try {
       const response = await fetch(
@@ -43,8 +37,7 @@ export default function NewAdvertisementPage() {
             description,
             company,
             package: packageName,
-            packagePrice: price,
-          }),
+}),
         }
       );
 
@@ -59,7 +52,7 @@ export default function NewAdvertisementPage() {
       }
 
       router.push(
-        "/reklam-veren/reklamlar"
+        `/reklam-veren/odeme?adId=${result.id}`
       );
     } catch {
       setError(
@@ -83,7 +76,7 @@ export default function NewAdvertisementPage() {
             <h1>Yeni Reklam</h1>
 
             <p>
-              Reklamınızı oluşturun.
+              Reklamınızı oluşturun ve güvenli ödeme adımına geçin.
             </p>
           </div>
 
@@ -149,15 +142,15 @@ export default function NewAdvertisementPage() {
               }
             >
               <option value="BASLANGIC">
-                Başlangıç — 499 TL
+                Başlangıç — 99 TL
               </option>
 
               <option value="STANDART">
-                Standart — 1.499 TL
+                Standart — 299 TL
               </option>
 
               <option value="ONE_CIKAN">
-                Öne Çıkan — 2.999 TL
+                Öne Çıkan — 459 TL
               </option>
             </select>
           </label>
@@ -175,7 +168,7 @@ export default function NewAdvertisementPage() {
           >
             {loading
               ? "Gönderiliyor..."
-              : "Reklamı Onaya Gönder →"}
+              : "Ödemeye Geç →"}
           </button>
 
         </form>
