@@ -1,4 +1,4 @@
-export const AD_PACKAGES = {
+﻿export const AD_PACKAGES = {
   BASLANGIC: {
     name: "Başlangıç",
     price: 99,
@@ -20,12 +20,41 @@ export const AD_PACKAGES = {
 
 export type AdPackageKey = keyof typeof AD_PACKAGES;
 
-export function getAdPackage(value: unknown) {
-  const key = String(value || "").trim() as AdPackageKey;
+export function normalizeAdPackageKey(
+  value: unknown
+): AdPackageKey {
+  const raw = String(value || "")
+    .trim()
+    .toUpperCase();
 
-  if (!Object.prototype.hasOwnProperty.call(AD_PACKAGES, key)) {
-    throw new Error("Geçersiz reklam paketi.");
+  if (!raw) {
+    return "BASLANGIC";
   }
+
+  // Eski/alternatif API payload uyumlulugu.
+  if (raw === "STANDARD") {
+    return "STANDART";
+  }
+
+  if (
+    Object.prototype.hasOwnProperty.call(
+      AD_PACKAGES,
+      raw
+    )
+  ) {
+    return raw as AdPackageKey;
+  }
+
+  throw new Error(
+    "Geçersiz reklam paketi."
+  );
+}
+
+export function getAdPackage(
+  value: unknown
+) {
+  const key =
+    normalizeAdPackageKey(value);
 
   return AD_PACKAGES[key];
 }

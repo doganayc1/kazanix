@@ -1,7 +1,13 @@
-import { NextRequest, NextResponse } from "next/server";
+﻿import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getAdvertiser, unauthorized } from "../auth";
-import { getAdPackage } from "@/lib/ad-packages";
+import {
+  getAdvertiser,
+  unauthorized,
+} from "../auth";
+import {
+  getAdPackage,
+  normalizeAdPackageKey,
+} from "@/lib/ad-packages";
 
 export async function GET() {
   try {
@@ -24,16 +30,19 @@ export async function GET() {
             },
           ],
         },
-
         orderBy: {
           createdAt: "desc",
         },
       });
 
-    return NextResponse.json(advertisements);
-
+    return NextResponse.json(
+      advertisements
+    );
   } catch (error) {
-    console.error("Advertiser advertisements GET error:", error);
+    console.error(
+      "Advertiser advertisements GET error:",
+      error
+    );
 
     return NextResponse.json(
       {
@@ -46,7 +55,9 @@ export async function GET() {
   }
 }
 
-export async function POST(request: NextRequest) {
+export async function POST(
+  request: NextRequest
+) {
   try {
     const user = await getAdvertiser();
 
@@ -66,13 +77,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const body = await request.json();
+    const body =
+      await request.json();
 
     const title =
-      String(body.title || "").trim();
+      String(
+        body.title || ""
+      ).trim();
 
     const description =
-      String(body.description || "").trim();
+      String(
+        body.description || ""
+      ).trim();
 
     if (!title || !description) {
       return NextResponse.json(
@@ -91,7 +107,8 @@ export async function POST(request: NextRequest) {
       typeof body.link === "string"
     ) {
       try {
-        const url = new URL(body.link);
+        const url =
+          new URL(body.link);
 
         if (
           url.protocol !== "http:" &&
@@ -99,7 +116,6 @@ export async function POST(request: NextRequest) {
         ) {
           throw new Error();
         }
-
       } catch {
         return NextResponse.json(
           {
@@ -113,10 +129,31 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    let packageKey;
+
+    try {
+      packageKey =
+        normalizeAdPackageKey(
+          body.package
+        );
+    } catch {
+      return NextResponse.json(
+        {
+          error:
+            "Geçersiz reklam paketi. Geçerli paketler: BASLANGIC, STANDART, ONE_CIKAN.",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
+    const adPackage =
+      getAdPackage(packageKey);
+
     const advertisement =
       await prisma.advertisement.create({
         data: {
-
           advertiserId: user.id,
 
           company:
@@ -132,23 +169,23 @@ export async function POST(request: NextRequest) {
           description,
 
           image:
-            typeof body.image === "string" &&
+            typeof body.image ===
+              "string" &&
             body.image.trim()
               ? body.image.trim()
               : null,
 
           link:
-            typeof body.link === "string" &&
+            typeof body.link ===
+              "string" &&
             body.link.trim()
               ? body.link.trim()
               : null,
 
-          package:
-            String(
-              body.package || "BASLANGIC"
-            ).trim(),
+          package: packageKey,
 
-          packagePrice: getAdPackage(String(body.package || "BASLANGIC").trim()).price,
+          packagePrice:
+            adPackage.price,
 
           status: "PENDING",
         },
@@ -160,7 +197,6 @@ export async function POST(request: NextRequest) {
         status: 201,
       }
     );
-
   } catch (error) {
     console.error(
       "Advertisement create error:",
