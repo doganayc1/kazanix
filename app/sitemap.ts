@@ -1,24 +1,58 @@
 ﻿import type { MetadataRoute } from "next";
-import { siteUrl } from "@/lib/site-url";
+
+const BASE_URL = "https://kazanix-51h5.vercel.app";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const pages = [
-    "",
-    "/reklam-ver",
-    "/reklam-veren",
-    "/reklamveren",
-    "/reklam-veren/giris",
-    "/reklam-veren/kayit",
-    "/gizlilik-politikasi",
-    "/kvkk",
-    "/kullanim-sartlari",
-    "/iletisim",
-  ];
+  const now = new Date();
 
-  return pages.map((page) => ({
-    url: `${siteUrl}${page}`,
-    lastModified: new Date(),
-    changeFrequency: page === "" ? "weekly" : "monthly",
-    priority: page === "" ? 1 : 0.7,
-  }));
+  return [
+    {
+      url: BASE_URL,
+      lastModified: now,
+      changeFrequency: "daily",
+      priority: 1,
+    },
+    {
+      url: `${BASE_URL}/reklam-ver`,
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.9,
+    },
+    {
+      url: `${BASE_URL}/reklam-veren/giris`,
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.7,
+    },
+    {
+      url: `${BASE_URL}/reklam-veren/kayit`,
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.7,
+    },
+    {
+      url: `${BASE_URL}/gizlilik-politikasi`,
+      lastModified: now,
+      changeFrequency: "yearly",
+      priority: 0.4,
+    },
+    {
+      url: `${BASE_URL}/kvkk`,
+      lastModified: now,
+      changeFrequency: "yearly",
+      priority: 0.4,
+    },
+    {
+      url: `${BASE_URL}/kullanim-sartlari`,
+      lastModified: now,
+      changeFrequency: "yearly",
+      priority: 0.4,
+    },
+    {
+      url: `${BASE_URL}/iletisim`,
+      lastModified: now,
+      changeFrequency: "yearly",
+      priority: 0.5,
+    },
+  ];
 }
